@@ -1,5 +1,5 @@
 # skincare-chatbot
-chatbot that recommends skincare products as per your concerns
+AI skincare recommender with RAG retrieval, a multimodal image-analysis feature, and an evaluation harness — built end-to-end on Databricks (PySpark, MLflow) and deployed as a live app.
 # Skincare AI Recommender
 
 An AI-powered skincare recommendation chatbot, built end-to-end on Databricks — from raw, messy product data through a working RAG chatbot with an image-analysis feature, deployed as a live Databricks App.
