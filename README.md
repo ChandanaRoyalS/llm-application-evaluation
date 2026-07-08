@@ -73,7 +73,7 @@ The image path runs a separate vision model (Llama 4 Maverick) that classifies a
 ## Repo structure
 
 ```
-notebooks/
+Notebooks/
   1_cleaning_normalization.ipynb        cleaning all three raw sources
   2_transformation_structuring.ipynb    ingredient validation, filtering, concern tagging
   3_rag_chatbot_image.ipynb             embeddings, hybrid retrieval, chatbot, image path
