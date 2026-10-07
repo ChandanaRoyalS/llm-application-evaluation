@@ -1,0 +1,6 @@
+# Lightweight deps for running the unit tests (no torch / model downloads needed).
+chromadb==1.5.9
+openai==3.26.0
+numpy==2.2.6
+pillow==11.3.0
+pytest==8.4.2
