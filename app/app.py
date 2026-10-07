@@ -1,5 +1,5 @@
 """
-Skincare Recommendation Chatbot — Databricks App
+Skincare Recommendation Chatbot — runs on Hugging Face Spaces or Databricks Apps
 Gradio interface with two tabs:
   1. Chat  — free-text skin concern -> hybrid RAG retrieval -> grounded LLM answer
   2. Photo — image upload -> vision three-mode analysis (recommend/escalate/retake)
@@ -19,7 +19,6 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 from numpy import dot
 from numpy.linalg import norm
-from databricks.sdk import WorkspaceClient
 
 # ------------------------------------------------------------------
 # Startup: load bundled catalog, embed, build vector store
@@ -41,18 +40,37 @@ ID_TO_INGREDIENTS = {}
 ALL_CONCERNS = []
 CONCERN_EMBEDDINGS = None
 
-TEXT_MODEL = "databricks-meta-llama-3-1-8b-instruct"
-VISION_MODEL = "databricks-llama-4-maverick"
-
+# ------------------------------------------------------------------
+# LLM backend — picked automatically from the environment:
+#   * HF_TOKEN set           -> Hugging Face Inference Providers (OpenAI-compatible)
+#   * otherwise (Databricks) -> Databricks model serving via the SDK
+# Model names can be overridden with TEXT_MODEL / VISION_MODEL env vars.
+# ------------------------------------------------------------------
 from openai import OpenAI
 
+USE_HF = bool(os.environ.get("HF_TOKEN"))
+HF_BASE_URL = os.environ.get("LLM_BASE_URL", "https://router.huggingface.co/v1")
+
+if USE_HF:
+    TEXT_MODEL = os.environ.get("TEXT_MODEL", "meta-llama/Llama-3.1-8B-Instruct")
+    VISION_MODEL = os.environ.get("VISION_MODEL",
+                                  "meta-llama/Llama-4-Maverick-17B-128E-Instruct")
+else:
+    TEXT_MODEL = os.environ.get("TEXT_MODEL", "databricks-meta-llama-3-1-8b-instruct")
+    VISION_MODEL = os.environ.get("VISION_MODEL", "databricks-llama-4-maverick")
+
 _workspace = None
+_hf_client = None
 
 def _get_llm_client():
-    """Version-safe OpenAI client for Databricks model serving.
-    Builds the client from the SDK's auth config (works across
-    databricks-sdk versions, refreshes tokens automatically)."""
-    global _workspace
+    """OpenAI-compatible client for whichever backend is configured."""
+    global _workspace, _hf_client
+    if USE_HF:
+        if _hf_client is None:
+            _hf_client = OpenAI(api_key=os.environ["HF_TOKEN"], base_url=HF_BASE_URL)
+        return _hf_client
+    # Databricks: build from the SDK's auth config (refreshes tokens automatically)
+    from databricks.sdk import WorkspaceClient
     if _workspace is None:
         _workspace = WorkspaceClient()
     headers = _workspace.config.authenticate()
@@ -278,10 +296,12 @@ with gr.Blocks(title="Skincare Assistant") as demo:
         img_out = gr.Markdown()
         img_btn.click(fn=handle_skin_image, inputs=img_in, outputs=img_out)
 
-# Native Gradio serving. (The FastAPI mount produced 307 redirects
+# Native Gradio serving. Port: DATABRICKS_APP_PORT on Databricks,
+# 7860 (Hugging Face Spaces default) everywhere else. (The FastAPI mount produced 307 redirects
 # built with the internal "localhost" host behind Databricks' proxy;
 # with NO_PROXY set above, launch()'s self-check passes and Gradio
 # serves directly with no redirects.)
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0",
-                server_port=int(os.environ.get("DATABRICKS_APP_PORT", 8000)))
+                server_port=int(os.environ.get("DATABRICKS_APP_PORT")
+                                    or os.environ.get("PORT", 7860)))
