@@ -25,7 +25,10 @@ Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MOD
 ## Deploy to Hugging Face Spaces
 
 1. Create a Gradio Space (CPU basic hardware).
-2. Upload `app.py`, `requirements.txt`, this `README.md`, and `app_data.json`
-   (the product catalog; git-ignored here, so upload it separately).
+2. Upload the contents of this `app/` folder: `app.py`, the `pipeline/` folder,
+   `app_data.json` (the product catalog), `requirements.txt` and this `README.md`.
 3. Create a token at huggingface.co/settings/tokens with "Make calls to Inference Providers" enabled.
 4. In the Space: Settings → Variables and secrets → New secret → `HF_TOKEN`.
+
+Optional: `MODEL_PRICES` (JSON, USD per 1M tokens) turns on cost tracking (the numbers below are placeholders — use your provider's actual prices):
+`{"meta-llama/Llama-3.1-8B-Instruct": {"input": 0.05, "output": 0.08}}`.
