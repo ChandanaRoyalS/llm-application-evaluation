@@ -17,7 +17,7 @@ You can talk to it in plain English — "my skin is oily and I keep getting brea
 
 ## Why this data, and why it was harder than it sounds
 
-The product catalog comes from three real sources: a Dermstore product export, a large Sephora products/reviews dataset, and the EU's official CosIng cosmetic ingredients registry (~31,000 ingredients). None of it arrived clean.
+The project works with three real datasets: a Dermstore product export (120 products), a large Sephora products dataset (~8,500 products), and the EU's official CosIng cosmetic ingredients registry (~31,000 ingredients). The recommender's catalog is built from Dermstore and validated against CosIng; the Sephora data is cleaned in notebook 1 but not yet merged into the catalog. None of it arrived clean.
 
 Ingredient lists were mixed comma- and newline-delimited. Prices were inconsistent strings. A chunk of the "skincare" catalog was actually haircare and devices that had leaked in. There was no reliable field saying "this product is good for acne" — that had to be derived from the ingredients themselves.
 
@@ -39,14 +39,16 @@ I went through three iterations on retrieval quality, and I think the failures a
 
 **Fix B (hybrid retrieval):** semantic search alone still let irrelevant products slip in occasionally. The fix was to use embeddings to understand the query, but filter results through the exact concern tags before they're shown — meaning-matching for understanding, structured data for correctness.
 
-I also built a small evaluation harness against the (sparse — only ~50 of 126 products) ground-truth concern labels in the raw data. It measured precision/recall around 0.10/0.28 on the 18 products with usable labels. I tried tightening the ingredient-matching rule to improve precision, and it made both metrics worse — the stricter rule assumed products would have multiple matching ingredients per concern, and in practice most don't. I reverted. I'd rather report an honest, modest number than a manipulated one, and the whole point of building the eval harness was catching exactly this kind of thing before it shipped.
+I also built a small evaluation harness against the (sparse — only 50 of 120 products) ground-truth concern labels in the raw data. It measured precision/recall around 0.10/0.28 on the 18 products with usable labels. I tried tightening the ingredient-matching rule to improve precision, and it made both metrics worse — the stricter rule assumed products would have multiple matching ingredients per concern, and in practice most don't. I reverted. I'd rather report an honest, modest number than a manipulated one, and the whole point of building the eval harness was catching exactly this kind of thing before it shipped.
 
-MLflow tracks all three versions with their parameters and metrics, including the one marked `REVERTED`.
+The full v2 → v3 → revert history is in notebook 4. One caveat I found later: the revert cell rebuilds the tags with a top-15 ingredient cutoff (267 tags), which isn't identical to notebook 2's original tagging (420 tags). Reconciling the two is part of the evaluation work described below.
 
 ## Known limitations
 
 - Concern-tagging precision/recall is low by the numbers above — the ground truth is sparse and my knowledge base only covers ~14 concerns with ~20 ingredients, so there's real room to improve this with a larger labeled set.
-- A handful of haircare products still pass the ingredient-based skincare filter because they share common ingredients (glycerin, panthenol) with real skincare. A combined ingredient + category signal would fix this.
+- The skincare filter leaks: with product names added, about 1 in 6 catalog products (roughly 18 of 106) turn out to be shampoos, conditioners, hair oils, mascara, essential oils or tools. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
+- The catalog export is being updated to include product names; older exports only carry the brand, so answers may refer to a product by brand alone.
+- The chat is single-turn: each message is answered on its own, without conversation history.
 - Everything runs on lightweight infrastructure: an in-memory Chroma vector store instead of a managed vector DB, and small open Llama models served through Hugging Face Inference Providers instead of a larger hosted model. Retrieval and generation both work, but a production version would swap these for a managed vector store (e.g. Databricks Vector Search) and a stronger LLM.
 - The image-analysis escalation logic was verified with a controlled test and one real photo, not a proper clinical validation set — which is the honest way to test a feature like this without using medical images I don't have rights to.
 
@@ -76,21 +78,50 @@ The image path runs a separate vision model (Llama 4 Maverick) that classifies a
 Notebooks/
   1_cleaning_normalization.ipynb        cleaning all three raw sources
   2_transformation_structuring.ipynb    ingredient validation, filtering, concern tagging
-  3_rag_chatbot_image.ipynb             embeddings, hybrid retrieval, chatbot, image path
+  3_rag_chatbot_image.ipynb             embeddings, hybrid retrieval, chatbot, image path, catalog export
   4_evaluation.ipynb                    ground-truth parsing, precision/recall, the v3 revert
 app/
-  app.py            the deployed Gradio app (runs on Hugging Face Spaces or Databricks Apps)
+  app.py            Gradio UI (runs on Hugging Face Spaces or Databricks Apps)
+  pipeline/         all app logic — shared by the UI and the evaluation
+    core.py         run_pipeline() / run_image_pipeline(): return a trace of every step
+    retrieval.py    concern detection + hybrid retrieval
+    generation.py   grounded prompt + structured (JSON) output parsing
+    vision.py       photo triage: recommend / escalate / retake
+    catalog.py      product catalog + vector store
+    llm.py          model calls with token, latency and cost tracking
+  app_data.json     the product catalog (exported by notebook 3)
   README.md         Hugging Face Space config + deploy steps
   app.yaml          Databricks App config (original deployment)
-  requirements.txt
+  requirements.txt  pinned runtime dependencies
+tests/              unit tests (no network or model downloads needed)
 ```
+
+`run_pipeline(query, model)` returns the answer plus a record of every step — detected concerns, retrieved products, the exact context the LLM saw, its raw output, the products it recommended, tokens, latency and cost. The model is a parameter, so different models can be compared on identical inputs.
 
 The notebooks were built and run in Databricks (Free Edition), using Unity Catalog tables between stages. The app was first deployed as a Databricks App and later moved to Hugging Face Spaces so it's always reachable. The notebooks are exported here as-is for reference — table paths inside them point at my workspace's catalog/schema and won't resolve without adjusting to your own.
 
+## Running locally
+
+```bash
+cd app
+pip install -r requirements.txt
+export HF_TOKEN=hf_...        # token with "Make calls to Inference Providers" enabled
+python app.py                 # http://localhost:7860
+```
+
+Tests (lightweight — no torch or model downloads):
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## Stack
 
-PySpark · Databricks (Unity Catalog, Delta tables, MLflow) · sentence-transformers · ChromaDB · Gradio · Hugging Face Spaces + Inference Providers (Llama 3.1 8B, Llama 4 Maverick)
+PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · ChromaDB · Gradio · Hugging Face Spaces + Inference Providers (Llama 3.1 8B, Llama 4 Maverick)
 
-## What I'd do next
+## What's next: application evaluation
 
-Swap in Databricks Vector Search for a production-grade vector store, expand the ground-truth evaluation set so precision/recall numbers are actually trustworthy, tighten the skincare filter to stop the haircare leak, and add location/weather-based feature signals to the recommendations.
+The next phase makes evaluation a core part of the project: a labeled test set organized by failure type (including hidden medical red flags and prompt injection), checks for each component (concern detection, retrieval, groundedness, safety, photo routing) and for the whole system, an LLM judge validated against human labels, a model comparison with confidence intervals, and a CI regression gate.
+
+After that: merge the Sephora catalog, fix the haircare leak with a category signal, and swap in a managed vector store (e.g. Databricks Vector Search).
