@@ -1,12 +1,10 @@
-# skincare-chatbot
-AI skincare recommender with RAG retrieval, a multimodal image-analysis feature, and an evaluation harness — built on Databricks (PySpark, MLflow) and deployed as a live app on Hugging Face Spaces.
 # Skincare AI Recommender
 
 An AI-powered skincare recommendation chatbot, built end-to-end on Databricks — from raw, messy product data through a working RAG chatbot with an image-analysis feature, deployed as a live app on Hugging Face Spaces.
 
 I built this as a portfolio project to go deeper than a typical "wrap an LLM in a chat box" demo. The interesting part isn't the chatbot — it's the data engineering underneath it: real product datasets, real cleaning problems, ingredient validation against an official regulatory registry, and a recommendation system that's grounded in actual product data instead of an LLM guessing.
 
-**Live app:** https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot
+**Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot)
 
 ## What it does
 
@@ -54,6 +52,7 @@ MLflow tracks all three versions with their parameters and metrics, including th
 
 ## Architecture
 
+```
 Raw data (Dermstore, Sephora, CosIng)
         │
 Cleaning & normalization (PySpark)  →  silver tables
@@ -67,6 +66,7 @@ Hybrid retrieval (semantic + concern tags)
 LLM generation (Llama 3.1 8B), grounded in retrieved products only
         │
 Gradio app (chat + photo upload) — deployed on Hugging Face Spaces
+```
 
 The image path runs a separate vision model (Llama 4 Maverick) that classifies a photo into recommend / escalate / retake before optionally handing off to the same recommendation pipeline.
 
