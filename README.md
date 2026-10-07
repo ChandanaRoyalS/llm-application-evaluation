@@ -46,7 +46,7 @@ The full v2 → v3 → revert history is in notebook 4. One caveat I found later
 ## Known limitations
 
 - Concern-tagging precision/recall is low by the numbers above — the ground truth is sparse and my knowledge base only covers ~14 concerns with ~20 ingredients, so there's real room to improve this with a larger labeled set.
-- The skincare filter leaks: several haircare brands (e.g. Christophe Robin, R+co, Alterna, Miriam Quevedo) and at least one device pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
+- The skincare filter leaks: with product names added, about 1 in 6 catalog products (roughly 18 of 106) turn out to be shampoos, conditioners, hair oils, mascara, essential oils or tools. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
 - The catalog export is being updated to include product names; older exports only carry the brand, so answers may refer to a product by brand alone.
 - The chat is single-turn: each message is answered on its own, without conversation history.
 - Everything runs on lightweight infrastructure: an in-memory Chroma vector store instead of a managed vector DB, and small open Llama models served through Hugging Face Inference Providers instead of a larger hosted model. Retrieval and generation both work, but a production version would swap these for a managed vector store (e.g. Databricks Vector Search) and a stronger LLM.
