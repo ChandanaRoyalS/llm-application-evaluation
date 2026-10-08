@@ -54,8 +54,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--version", required=True)
     ap.add_argument("--model", default=JUDGE_MODEL)
+    ap.add_argument("--labels", default=os.path.join(HERE, "reference_labels.csv"),
+                    help="reference labels (default: reference_labels.csv, written by Claude; see spec v1.9)")
     a = ap.parse_args(argv)
-    human = {r["item_id"]: r for r in csv.DictReader(open(os.path.join(HERE, "human_labels.csv"), encoding="utf-8"))}
+    human = {r["item_id"]: r for r in csv.DictReader(open(a.labels, encoding="utf-8"))}
     judged = {}
     path = run_path(a.model, a.version)
     for line in open(path, encoding="utf-8"):
@@ -63,9 +65,9 @@ def main(argv=None):
             r = json.loads(line)
             judged[r["item_id"]] = r
     results, out = {}, [f"# Judge agreement — prompt {a.version}, `{a.model}`\n",
-                        f"Human labels: `eval/judge/human_labels.csv`. The judge is used for a criterion only if "
+                        f"Reference labels: `{os.path.relpath(a.labels, os.path.dirname(os.path.dirname(HERE)))}`. The judge is used for a criterion only if "
                         f"its **holdout** κ ≥ {KAPPA_MIN}. Calibration numbers are for tuning and are optimistic.\n",
-                        "| Split | Criterion | n | κ (95% CI) | Raw agreement | Human yes / judge no | Human no / judge yes | Left out (unsure / judge) | Judge usable |",
+                        "| Split | Criterion | n | κ (95% CI) | Raw agreement | Reference yes / judge no | Reference no / judge yes | Left out (unsure / judge) | Judge usable |",
                         "|---|---|---|---|---|---|---|---|---|"]
     for split in ("calibration", "holdout"):
         ids = [i for i, r in judged.items() if r["split"] == split and i in human]
@@ -83,7 +85,7 @@ def main(argv=None):
             out.append(f"| {split} | {c} | {s['n']} | {s['kappa']:.2f}{ci} | {100 * s['raw']:.0f}% | {s['yn']} | {s['ny']} "
                        f"| {s['excluded_unsure']} / {s['excluded_judge']} | {usable} |")
     codes = ["\n## Checklist codes (counts; which specific failures each side found)\n",
-             "| Split | Code | Human ticked | Judge ticked | Both |", "|---|---|---|---|---|"]
+             "| Split | Code | Reference ticked | Judge ticked | Both |", "|---|---|---|---|---|"]
     for split in ("calibration", "holdout"):
         ids = [i for i, r in judged.items() if r["split"] == split and i in human]
         for code in list(HELPFUL) + list(APPROPRIATE):
@@ -101,10 +103,10 @@ def main(argv=None):
             if hv in ("yes", "no") and jv in ("yes", "no") and hv != jv:
                 extra = ""
                 if c != "refers_to_doctor":
-                    extra = f" (human codes: {human[i].get(c + '_fails') or '—'}; judge codes: {', '.join(r['verdicts'][c].get('fails') or []) or '—'})"
+                    extra = f" (reference codes: {human[i].get(c + '_fails') or '—'}; judge codes: {', '.join(r['verdicts'][c].get('fails') or []) or '—'})"
                 else:
-                    extra = f" (human: {human[i].get('doctor_code') or '—'}; judge: {r['verdicts'][c].get('code') or '—'})"
-                disagree.append(f"- **{i}** {c}: human {hv}, judge {jv}{extra} — {r['verdicts'][c]['reason']}")
+                    extra = f" (reference: {human[i].get('doctor_code') or '—'}; judge: {r['verdicts'][c].get('code') or '—'})"
+                disagree.append(f"- **{i}** {c}: reference {hv}, judge {jv}{extra} — {r['verdicts'][c]['reason']}")
     text = "\n".join(out + codes + disagree) + "\n"
     base = os.path.join(HERE, f"agreement_{a.version}")
     with open(base + ".md", "w", encoding="utf-8") as f:
