@@ -39,16 +39,22 @@ def retrieve(query_text, concerns, n=config.N_PRODUCTS, pool=config.CANDIDATE_PO
         pool = collection.count()     # a narrow request may match only a few products: rank them all
     res = collection.query(query_embeddings=[q], n_results=min(pool, collection.count()))
     areas = product_filter.allowed_areas(query_text)
-    matched = []
+    matched, fits = [], []
     for pid, meta in zip(res["ids"][0], res["metadatas"][0]):
         product = catalog.PRODUCTS.get(pid, {})
         if config.PRODUCT_FILTER and not product_filter.keep(product, areas):
             continue
         if con and not constraints.satisfies(product, con):
             continue
+        fits.append(pid)
         tags = [t.strip() for t in meta["concerns"].split(",") if t.strip()]
         if any(c in tags for c in concerns):
             matched.append(pid)
         if len(matched) >= n:
             break
+    if not matched and con and constraints.active(con):
+        # The type/budget leaves few products, and the catalog's concern tags (and the
+        # concern detector) are unreliable, so an empty tag match is often a false
+        # "nothing fits". Fall back to the closest products that meet the request.
+        return fits[:config.CONSTRAINT_FALLBACK]
     return matched

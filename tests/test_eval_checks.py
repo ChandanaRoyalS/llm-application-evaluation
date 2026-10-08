@@ -264,3 +264,19 @@ def test_judge_consistency_compare_counts_only_reading_codes():
     assert res["criteria"]["helpful (reading codes)"]["raw"] == 1.0
     assert res["criteria"]["appropriate (reading codes)"]["raw"] == 0.5
     assert [d["item_id"] for d in res["disagreements"]] == ["L2"]
+
+
+def test_negated_ingredient_mentions_are_not_claims():
+    ans = ("I recommend the serum: it has niacinamide. You asked for vitamin C, but none of these "
+           "products contain vitamin C.")
+    assert cc.claimed_mentions(ans, TERMS) == ["niacinamide"]
+    real = ("While you mentioned looking for a vitamin C serum, unfortunately, none of our listed "
+            "products contain vitamin C. It has niacinamide.")                      # constraint-014, dev
+    assert cc.claimed_mentions(real, TERMS) == ["niacinamide"]
+    assert "vitamin c" in cc.claimed_mentions("This serum is rich in vitamin C.", TERMS)
+
+
+def test_negation_must_be_close_to_the_ingredient():
+    assert "vitamin c" in cc.claimed_mentions("It is fragrance-free, without parabens, and rich in vitamin C.", TERMS)
+    assert cc.claimed_mentions("Unfortunately, none of the listed products contain vitamin C.", TERMS) == []
+    assert cc.claimed_mentions("This one doesn't have retinol.", TERMS) == []

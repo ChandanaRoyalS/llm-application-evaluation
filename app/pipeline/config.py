@@ -47,6 +47,8 @@ CONCERN_HINT = os.environ.get("CONCERN_HINT", "0") not in ("0", "false", "False"
 # Pipeline v3 (EVAL_SPEC changelog v1.19): retrieval keeps only products of the type
 # and within the budget the user asks for (app/pipeline/constraints.py). 0 = v2.
 CONSTRAINT_FILTER = os.environ.get("CONSTRAINT_FILTER", "1") not in ("0", "false", "False")
+CONSTRAINT_FALLBACK = 3       # if no product of the requested type/budget carries a detected
+                              # concern tag, pass the closest this many by semantic similarity
 
 
 def pipeline_version():

@@ -39,7 +39,8 @@ def test_retrieval_keeps_only_matching_products(loaded_catalog, monkeypatch):
     monkeypatch.setattr(config, "CONSTRAINT_FILTER", True)
     assert retrieval.retrieve("a serum for dark spots", ["hyperpigmentation"]) == ["3"]
     assert retrieval.retrieve("oily acne gel under $25", ["acne"]) == ["1"]
-    assert retrieval.retrieve("oily acne under $10", ["acne"]) == []
+    # nothing tagged acne under $10: the fallback offers only what is within budget (product 2, $0)
+    assert retrieval.retrieve("oily acne under $10", ["acne"]) == ["2"]
     monkeypatch.setattr(config, "CONSTRAINT_FILTER", False)               # pipeline v2 ignores them
     assert retrieval.retrieve("oily acne under $10", ["acne"]) == ["1"]
 
@@ -53,3 +54,10 @@ def test_no_match_says_what_was_not_found(loaded_catalog, fake_llm, monkeypatch)
 
 def test_pipeline_version():
     assert config.pipeline_version() == "v3"
+
+
+def test_fallback_when_no_tagged_product_fits(loaded_catalog, monkeypatch):
+    monkeypatch.setattr(config, "CONSTRAINT_FILTER", True)
+    # the only serum is tagged hyperpigmentation, not acne: show the closest serum instead of nothing
+    assert retrieval.retrieve("a serum for acne", ["acne"]) == ["3"]
+    assert retrieval.retrieve("a mask for acne", ["acne"]) == []         # no mask at all: nothing fits
