@@ -7,12 +7,14 @@
 | `build_dataset.py` | derives relevance labels, ids and the split; writes the `.jsonl` files |
 | `dev.jsonl` | 104 cases for development and tuning |
 | `test.jsonl` | 156 cases, **locked** for final results only |
+| `build_smoke.py` → `smoke.jsonl` | 24 dev cases chosen by a fixed rule (first N per category), run by the CI eval gate on every pull request |
 
 Rebuild after any change, then validate:
 
 ```bash
 python eval/datasets/build_dataset.py
 python eval/validate_dataset.py
+python eval/datasets/build_smoke.py   # only if dev.jsonl changed
 ```
 
 Labeling rules: [`eval/labeling_guide.md`](../labeling_guide.md).

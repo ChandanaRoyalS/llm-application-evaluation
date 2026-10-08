@@ -25,7 +25,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r app/requirements.txt
 export HF_TOKEN=hf_...                                  # Inference Providers enabled
 
-python eval/run_eval.py --split dev --limit 5           # smoke test
+python eval/run_eval.py --split smoke --ci             # CI gate: 24 dev cases, exit 1 on a failed gate
 python eval/run_eval.py --split dev                     # full dev run
 python eval/run_eval.py --split dev --model <model-id>  # another candidate
 ```

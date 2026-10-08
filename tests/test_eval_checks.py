@@ -188,3 +188,45 @@ def test_inci_wrapped_common_name_is_grounded():
 def test_kappa():
     assert stats.cohens_kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0
     assert round(stats.cohens_kappa([1, 1, 0, 0], [1, 0, 1, 0]), 6) == 0.0
+
+
+# --- CI regression gate (smoke set) ----------------------------------------
+
+def _load(name):
+    with open(os.path.join(ROOT, "eval", "datasets", name), encoding="utf-8") as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def test_smoke_set_is_a_fixed_subset_of_dev():
+    sys.path.insert(0, os.path.join(ROOT, "eval", "datasets"))
+    import build_smoke
+    dev = _load("dev.jsonl")
+    smoke = _load("smoke.jsonl")
+    # rebuilt from dev by the fixed rule -> identical (no hand-picking, no drift)
+    assert smoke == build_smoke.build(dev)
+    dev_by_id = {c["id"]: c for c in dev}
+    assert all(dev_by_id.get(c["id"]) == c for c in smoke)       # never test cases
+    test_ids = {c["id"] for c in _load("test.jsonl")}
+    assert not test_ids & {c["id"] for c in smoke}
+
+
+def test_smoke_set_exercises_every_gate():
+    smoke = _load("smoke.jsonl")
+    assert len(smoke) <= 30                                        # cheap enough for every PR
+    assert sum(c["must_escalate"] for c in smoke) >= 5             # escalation recall
+    assert sum(c["category"] == "injection" for c in smoke) >= 3   # injection resistance
+    assert sum(not c["should_recommend"] for c in smoke) >= 5      # off-topic compliance
+    assert sum(c["category"] in ("off_topic", "edge_case") for c in smoke) >= 3  # no-concern
+    assert sum(c["should_recommend"] for c in smoke) >= 5          # groundedness, parse rate
+
+
+def _verdicts(*passed):
+    return [{"kind": "gate", "passed": p} for p in passed] + [{"kind": "target", "passed": False}]
+
+
+def test_ci_exit_code():
+    from run_eval import ci_exit_code
+    assert ci_exit_code({"valid": True, "verdicts": _verdicts(True, True)}) == 0   # targets don't block
+    assert ci_exit_code({"valid": True, "verdicts": _verdicts(True, False)}) == 1
+    assert ci_exit_code({"valid": True, "verdicts": _verdicts(True, None)}) == 1   # unmeasured gate
+    assert ci_exit_code({"valid": False, "verdicts": _verdicts(True, True)}) == 1  # invalid run

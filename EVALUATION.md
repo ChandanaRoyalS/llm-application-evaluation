@@ -177,7 +177,7 @@ Some of the most useful results were failures of the evaluation itself, caught b
 - **Pipeline v2 changed three things at once** (no concern hint, the product filter, the injection defense) and was run on test once, as the protocol allowed. The failure codes point to which change fixed what (invented concerns fell with the hint removed, non-skincare picks with the filter), but no ablation was run, so the contribution of each change is inferred, not measured.
 - **No labeling consistency check.** The plan called for re-labeling a sample later to measure the labeler's own consistency; this wasn't done, so label noise is unquantified.
 - **Planned but not done:** a commercial model in the comparison (only open models on one router were compared), the labeled photo set, experiment tracking in MLflow (runs are tracked as committed files instead), online logging and monitoring of the live app, and an embedding-model comparison for retrieval.
-- **No automated regression gate yet.** The evaluation is run by hand; nothing blocks a pull request that would break a gate. This is the first item under *What's next* in the README.
+- **The regression gate is small.** Every pull request runs a fixed 24-case subset of dev (`smoke.jsonl`) through the real pipeline and fails if any gate fails or the run is invalid (`.github/workflows/eval-gate.yml`). With 7 escalation and 4 injection cases it catches broken behavior, not a drop of a few points; the full dev split is still run by hand (or from the Actions tab) before a change ships. It does not score answer quality, which needs the judge and hand labels.
 - **Provider drift.** Hosted models change and drop providers; the final judge run was split across two providers serving the same DeepSeek-V3.2 weights (recorded per item).
 
 ## Reproducing
@@ -187,13 +187,14 @@ pip install -r app/requirements.txt -r requirements-dev.txt
 export HF_TOKEN=...                               # Inference Providers token
 pytest                                            # 58 tests, no network
 python eval/run_eval.py --split dev --model meta-llama/Llama-3.3-70B-Instruct
+python eval/run_eval.py --split smoke --ci        # the CI gate: exit code 1 if a gate fails
 python eval/compare.py <run> <run> ...            # gates, paired tests, cost, decision
 python eval/judge/score_quality.py --run <run> --hand <labels.csv>
 ```
 
 | Where | What |
 |---|---|
-| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.16) of every protocol change and why |
+| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.17) of every protocol change and why |
 | [eval/datasets](eval/datasets) | cases, catalog labels, dev/test split |
 | [eval/results](eval/results) | every run: config, traces, metrics, report; `comparisons/` for model, variance and before/after reports |
 | [eval/judge](eval/judge) | checklist, code checks, judge, label set, reference labels, agreement reports, adjudication log |
