@@ -4,7 +4,20 @@ An AI-powered skincare recommendation chatbot, built end-to-end on Databricks �
 
 I built this as a portfolio project to go deeper than a typical "wrap an LLM in a chat box" demo. The interesting part isn't the chatbot — it's the data engineering underneath it: real product datasets, real cleaning problems, ingredient validation against an official regulatory registry, and a recommendation system that's grounded in actual product data instead of an LLM guessing.
 
-**Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot)
+**Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot) (still runs the earlier pipeline; the evaluated version below is being deployed)
+
+## Evaluation at a glance
+
+The core of the project is an application-level evaluation: 260 hand-written cases across 11 failure types (hidden medical red flags, prompt injection, budgets, slang…), a locked test split, gates and a model-selection rule fixed in advance in [EVAL_SPEC.md](EVAL_SPEC.md), paired statistics, and an LLM judge that was validated against reference labels before being trusted. Full write-up: **[EVALUATION.md](EVALUATION.md)**.
+
+| Locked test split (156 cases) | Start | End |
+|---|---|---|
+| Safety and scope gates | 5/7 | **7/7**, stable across 4 runs |
+| Told to see a doctor when they should be | 5.4% | **97.3%** |
+| Wrong-category products retrieved | 17.0% | **1.5%** |
+| Answer quality (target ≥ 85%) | 43.5% | **77.9%** (paired +32.8 pp, p = 3·10⁻⁶) — target not met |
+
+What the evaluation found: the original bot sent most medical red flags a greeting (fixed with a triage step); a bigger model didn't fix answer quality because the cause was in the pipeline (the concern detector's guesses were passed to the model as facts, and 45 of 106 catalog products weren't skincare); and the LLM judge passed validation for *Appropriate* (κ = 0.78) but not for *Helpful* (κ = 0.44), so *Helpful* is scored by code and hand labels instead.
 
 ## What it does
 
@@ -46,7 +59,8 @@ The full v2 → v3 → revert history is in notebook 4. One caveat I found later
 ## Known limitations
 
 - Concern-tagging precision/recall is low by the numbers above — the ground truth is sparse and my knowledge base only covers ~14 concerns with ~20 ingredients, so there's real room to improve this with a larger labeled set.
-- The skincare filter leaks: labeled product by product, only 61 of the 106 catalog products are skincare; the rest are haircare (25), makeup (15), fragrance (3), a bath soak and a device gel. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
+- The catalog's skincare filter leaks: labeled product by product, only 61 of the 106 catalog products are skincare; the rest are haircare (25), makeup (15), fragrance (3), a bath soak and a device gel. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare. Retrieval now drops them with name- and brand-based rules (pipeline v2, wrong-category picks 17% → 1.5%); fixing the catalog itself is still to do.
+- Evaluation limits (synthetic single-author dataset, AI-written reference labels, small red-flag and injection samples) are listed in [EVALUATION.md](EVALUATION.md#limitations).
 - The catalog export is being updated to include product names; older exports only carry the brand, so answers may refer to a product by brand alone.
 - The chat is single-turn: each message is answered on its own, without conversation history.
 - Everything runs on lightweight infrastructure: an in-memory Chroma vector store instead of a managed vector DB, and small open Llama models served through Hugging Face Inference Providers instead of a larger hosted model. Retrieval and generation both work, but a production version would swap these for a managed vector store (e.g. Databricks Vector Search) and a stronger LLM.
@@ -63,9 +77,11 @@ Ingredient validation + skincare filtering + concern tagging  →  gold tables
         │
 Embeddings (sentence-transformers) + Chroma vector store
         │
-Hybrid retrieval (semantic + concern tags)
+Triage: medical / out of scope / off topic / cosmetic  (medical → refer to a doctor)
         │
-LLM generation (Llama 3.1 8B), grounded in retrieved products only
+Hybrid retrieval (semantic + concern tags) + skincare / body-area filter
+        │
+LLM generation (Llama 3.3 70B), grounded in retrieved products only, JSON output
         │
 Gradio app (chat + photo upload) — deployed on Hugging Face Spaces
 ```
@@ -94,7 +110,10 @@ app/
   README.md         Hugging Face Space config + deploy steps
   app.yaml          Databricks App config (original deployment)
   requirements.txt  pinned runtime dependencies
+eval/               the evaluation: datasets, runner, scoring, comparisons, LLM judge, all results
 tests/              unit tests (no network or model downloads needed)
+EVAL_SPEC.md        what "good" means, fixed before results, with a changelog of every change
+EVALUATION.md       the evaluation write-up
 ```
 
 `run_pipeline(query, model)` returns the answer plus a record of every step — detected concerns, retrieved products, the exact context the LLM saw, its raw output, the products it recommended, tokens, latency and cost. The model is a parameter, so different models can be compared on identical inputs.
@@ -119,12 +138,12 @@ pytest
 
 ## Stack
 
-PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · ChromaDB · Gradio · Hugging Face Spaces + Inference Providers (Llama 3.1 8B, Llama 4 Maverick)
+PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · ChromaDB · Gradio · Hugging Face Spaces + Inference Providers (Llama 3.3 70B, Llama 4 Maverick; DeepSeek-V3.2 as the evaluation judge)
 
-## What's next: application evaluation
+## What's next
 
-The next phase makes evaluation a core part of the project: a labeled test set organized by failure type (including hidden medical red flags and prompt injection), checks for each component (concern detection, retrieval, groundedness, safety, photo routing) and for the whole system, an LLM judge validated against human labels, a model comparison with confidence intervals, and a CI regression gate.
-
-What "good" means — every metric, pass threshold and the model-selection rule — is fixed in advance in [EVAL_SPEC.md](EVAL_SPEC.md), before any results are seen. The labeled test set (260 cases across 11 failure categories, with a locked test split) is in [eval/datasets](eval/datasets).
-
-After that: merge the Sephora catalog, fix the haircare leak with a category signal, and swap in a managed vector store (e.g. Databricks Vector Search).
+- Use the requested product type in retrieval (the largest remaining quality failure) and stop treating unstated concerns as the user's in the remaining cases.
+- Add a triage rule for depigmentation and route makeup requests that mention skin as out of scope.
+- A CI regression gate that runs the dev split on every PR and blocks merges that fail a gate.
+- A labeled photo set for the image path; a domain expert's review of ingredient claims.
+- Merge the Sephora catalog and fix the haircare leak at the catalog level; swap in a managed vector store (e.g. Databricks Vector Search).
