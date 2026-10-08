@@ -60,7 +60,7 @@ Computed against hand labels: skincare vs not-skincare for all 106 catalog produ
 | Skincare-filter precision | share of catalog products that are actually skincare | target | ≥ 0.95 |
 | Concern-tag precision / recall | tags vs hand labels, micro-averaged over labeled products | diagnostic | — |
 
-*Known baseline from Phase 0: about 18 of 106 products are not skincare (≈ 0.83 precision).*
+*Known baseline from the product labels in `eval/datasets/catalog_labels.csv`: 61 of 106 products are skincare (≈ 0.58 precision). An earlier keyword count ("about 18 of 106 not skincare") missed makeup and fragrance.*
 
 ### 3.3 Retrieval — *does it find the right products?*
 
@@ -205,3 +205,4 @@ Fixed in advance. Applied to the **test set** only.
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 1.0 | 2026-10-07 | Initial spec, written before any evaluation results | — |
+| 1.1 | 2026-10-08 | §3.2 baseline corrected to 61 / 106 skincare. §4: dataset v1 is fully synthetic and single-annotator; the consistency re-label and one-by-one review are deferred | Baseline came from independent product labels. Review deferred by the author; results will carry this caveat. No thresholds or decision rules changed. |

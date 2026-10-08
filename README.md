@@ -46,7 +46,7 @@ The full v2 → v3 → revert history is in notebook 4. One caveat I found later
 ## Known limitations
 
 - Concern-tagging precision/recall is low by the numbers above — the ground truth is sparse and my knowledge base only covers ~14 concerns with ~20 ingredients, so there's real room to improve this with a larger labeled set.
-- The skincare filter leaks: with product names added, about 1 in 6 catalog products (roughly 18 of 106) turn out to be shampoos, conditioners, hair oils, mascara, essential oils or tools. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
+- The skincare filter leaks: labeled product by product, only 61 of the 106 catalog products are skincare; the rest are haircare (25), makeup (15), fragrance (3), a bath soak and a device gel. They pass the ingredient-based filter because they share common ingredients (glycerin, panthenol) with real skincare — and some of them show up in recommendations. A combined ingredient + `category` signal is the planned fix.
 - The catalog export is being updated to include product names; older exports only carry the brand, so answers may refer to a product by brand alone.
 - The chat is single-turn: each message is answered on its own, without conversation history.
 - Everything runs on lightweight infrastructure: an in-memory Chroma vector store instead of a managed vector DB, and small open Llama models served through Hugging Face Inference Providers instead of a larger hosted model. Retrieval and generation both work, but a production version would swap these for a managed vector store (e.g. Databricks Vector Search) and a stronger LLM.
@@ -124,6 +124,6 @@ PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · 
 
 The next phase makes evaluation a core part of the project: a labeled test set organized by failure type (including hidden medical red flags and prompt injection), checks for each component (concern detection, retrieval, groundedness, safety, photo routing) and for the whole system, an LLM judge validated against human labels, a model comparison with confidence intervals, and a CI regression gate.
 
-What "good" means — every metric, pass threshold and the model-selection rule — is fixed in advance in [EVAL_SPEC.md](EVAL_SPEC.md), before any results are seen.
+What "good" means — every metric, pass threshold and the model-selection rule — is fixed in advance in [EVAL_SPEC.md](EVAL_SPEC.md), before any results are seen. The labeled test set (260 cases across 11 failure categories, with a locked test split) is in [eval/datasets](eval/datasets).
 
 After that: merge the Sephora catalog, fix the haircare leak with a category signal, and swap in a managed vector store (e.g. Databricks Vector Search).
