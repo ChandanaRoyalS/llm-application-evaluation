@@ -69,7 +69,7 @@ def main(argv=None):
     todo = [t for t in traces if t["case_id"] not in cached]
     if todo:
         try:
-            llm.chat(judge.JUDGE_MODEL, [{"role": "user", "content": "Reply with OK."}], max_tokens=3)
+            llm.chat(judge.routed(judge.JUDGE_MODEL), [{"role": "user", "content": "Reply with OK."}], max_tokens=3)
         except llm.LLMError as e:
             sys.exit(f"Preflight call to {judge.JUDGE_MODEL} failed, nothing was run: {e}")
     print(f"{len(traces)} answered cases; judging {len(todo)} ({len(cached)} cached)")
@@ -78,6 +78,7 @@ def main(argv=None):
             products = [product_view(p, app) for p in t.get("recommended_ids") or []]
             res = judge.judge_one(t["query"], t["answer"], products, t.get("context_given_to_llm") or "")
             res["case_id"] = t["case_id"]
+            res["provider"] = os.environ.get("JUDGE_PROVIDER") or "router default"
             f.write(json.dumps(res, ensure_ascii=False) + "\n")
             f.flush()
             cached[t["case_id"]] = res
