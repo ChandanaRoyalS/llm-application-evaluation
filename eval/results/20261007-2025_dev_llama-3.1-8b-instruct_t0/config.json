@@ -1,0 +1,15 @@
+{
+ "run_name": "20261007-2025_dev_llama-3.1-8b-instruct_t0",
+ "split": "dev",
+ "n_cases": 104,
+ "model": "meta-llama/Llama-3.1-8B-Instruct",
+ "temperature": 0.0,
+ "embedding_model": "all-MiniLM-L6-v2",
+ "concern_threshold": 0.45,
+ "n_products": 5,
+ "backend": "huggingface",
+ "git_commit": "d6cc42e",
+ "dataset_hash": "8943f97373b6",
+ "catalog_hash": "3622035f2360",
+ "started_at": "2026-10-07T20:25:28"
+}
