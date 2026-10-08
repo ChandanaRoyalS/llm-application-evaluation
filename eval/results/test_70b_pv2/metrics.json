@@ -136,11 +136,11 @@
    "ci_high": 0.03518316160423605
   },
   "recall_at_5": {
-   "value": 0.08740017280582384,
+   "value": 0.08740017280582381,
    "n": 89
   },
   "concern_macro_f1": {
-   "value": 0.5260594915655644,
+   "value": 0.5260594915655645,
    "n": 13
   },
   "skincare_precision": {
@@ -353,7 +353,7 @@
    "kind": "target",
    "op": ">=",
    "threshold": 0.7,
-   "value": 0.5260594915655644,
+   "value": 0.5260594915655645,
    "n": 13,
    "ci_low": null,
    "ci_high": null,
