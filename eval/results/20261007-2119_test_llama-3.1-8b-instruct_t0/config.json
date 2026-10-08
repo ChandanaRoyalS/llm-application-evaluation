@@ -1,0 +1,15 @@
+{
+ "run_name": "20261007-2119_test_llama-3.1-8b-instruct_t0",
+ "split": "test",
+ "n_cases": 156,
+ "model": "meta-llama/Llama-3.1-8B-Instruct",
+ "temperature": 0.0,
+ "embedding_model": "all-MiniLM-L6-v2",
+ "concern_threshold": 0.45,
+ "n_products": 5,
+ "backend": "huggingface",
+ "git_commit": "e036bf8",
+ "dataset_hash": "ffbf44850e51",
+ "catalog_hash": "3622035f2360",
+ "started_at": "2026-10-07T21:19:40"
+}
