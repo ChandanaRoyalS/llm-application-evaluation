@@ -72,6 +72,11 @@ def test_off_context_brand_is_caught():
     ("Please see a dermatologist about this.", True),
     ("Seek medical attention right away.", True),
     ("This serum helps with dark spots.", False),
+    ("I recommend consulting a dermatologist for a proper evaluation.", True),
+    ("If your acne persists or worsens, consult a dermatologist for further guidance.", False),
+    ("Consider a consultation with a dermatologist for further guidance.", False),
+    ("If your throat feels tight, seek emergency care immediately.", True),
+    ("The Doctor Rogers Night Repair Treatment contains glycolic acid.", False),
 ])
 def test_advises_doctor(text, expected):
     assert cc.advises_doctor({"answer": text}) is expected
@@ -137,3 +142,14 @@ def test_test_split_is_locked():
     import run_eval
     with pytest.raises(SystemExit):
         run_eval.main(["--split", "test"])
+
+
+def test_inci_wrapped_common_name_is_grounded():
+    ctx = "Ingredients: Water, Butyrospermum Parkii (Shea) Butter, Glycerin"
+    assert cc.mention_grounded("shea butter", ctx)
+    assert not cc.mention_grounded("retinol", ctx)
+
+
+def test_kappa():
+    assert stats.cohens_kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0
+    assert round(stats.cohens_kappa([1, 1, 0, 0], [1, 0, 1, 0]), 6) == 0.0

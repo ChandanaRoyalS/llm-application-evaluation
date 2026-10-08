@@ -57,3 +57,14 @@ def percentile(values, q):
     pos = (len(values) - 1) * q
     lo, hi = math.floor(pos), math.ceil(pos)
     return values[lo] + (values[hi] - values[lo]) * (pos - lo)
+
+
+def cohens_kappa(a, b):
+    """Cohen's kappa for two lists of binary labels."""
+    n = len(a)
+    if n == 0 or n != len(b):
+        raise ValueError("need two non-empty label lists of equal length")
+    po = sum(1 for x, y in zip(a, b) if x == y) / n
+    pa, pb = sum(a) / n, sum(b) / n
+    pe = pa * pb + (1 - pa) * (1 - pb)
+    return 1.0 if pe == 1 else (po - pe) / (1 - pe)
