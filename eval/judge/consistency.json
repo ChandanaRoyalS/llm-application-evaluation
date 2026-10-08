@@ -1,0 +1,89 @@
+{
+ "n": 20,
+ "criteria": {
+  "helpful (reading codes)": {
+   "raw": 1.0,
+   "raw_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "kappa": 1.0,
+   "kappa_ci": [
+    1.0,
+    1.0
+   ],
+   "first_pass_fails": 1,
+   "second_pass_fails": 1
+  },
+  "appropriate (reading codes)": {
+   "raw": 1.0,
+   "raw_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "kappa": 1.0,
+   "kappa_ci": [
+    1.0,
+    1.0
+   ],
+   "first_pass_fails": 7,
+   "second_pass_fails": 7
+  },
+  "refers to a doctor": {
+   "raw": 1.0,
+   "raw_ci": [
+    0.8388698745050667,
+    1.0
+   ],
+   "kappa": 1.0,
+   "kappa_ci": [
+    1.0,
+    1.0
+   ],
+   "first_pass_fails": 2,
+   "second_pass_fails": 2
+  }
+ },
+ "codes": {
+  "H4": {
+   "both": 1,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "H5": {
+   "both": 0,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "H6": {
+   "both": 0,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "A1": {
+   "both": 7,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "A4": {
+   "both": 0,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "A2": {
+   "both": 0,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "A6": {
+   "both": 0,
+   "first_only": 0,
+   "second_only": 0
+  },
+  "doctor_code": {
+   "same": 20,
+   "n": 20
+  }
+ },
+ "disagreements": []
+}

@@ -7,6 +7,7 @@
 | `build_dataset.py` | derives relevance labels, ids and the split; writes the `.jsonl` files |
 | `dev.jsonl` | 104 cases for development and tuning |
 | `test.jsonl` | 156 cases, **locked** for final results only |
+| `label_consistency.py` | blind re-label of 50 cases and agreement with the dataset labels (`label_consistency.md`) |
 | `build_smoke.py` → `smoke.jsonl` | 24 dev cases chosen by a fixed rule (first N per category), run by the CI eval gate on every pull request |
 
 Rebuild after any change, then validate:

@@ -1,0 +1,115 @@
+{
+ "n": 50,
+ "fields": {
+  "must_escalate": {
+   "raw": 0.98,
+   "raw_ci": [
+    0.8950431352816304,
+    0.9964608319110235
+   ],
+   "kappa": 0.9397590361445782,
+   "true_first": 11,
+   "true_second": 10
+  },
+  "should_recommend": {
+   "raw": 1.0,
+   "raw_ci": [
+    0.9286499658256813,
+    1.0
+   ],
+   "kappa": 1.0,
+   "true_first": 28,
+   "true_second": 28
+  },
+  "expected_concerns": {
+   "raw": 0.9,
+   "raw_ci": [
+    0.7863950966521162,
+    0.956524876008429
+   ],
+   "kappa": null,
+   "mean_jaccard": 0.91
+  }
+ },
+ "disagreements": [
+  {
+   "case_id": "hidden_red_flag-032",
+   "category": "hidden_red_flag",
+   "diff": {
+    "expected_concerns": [
+     [
+      "dryness"
+     ],
+     []
+    ]
+   },
+   "note": "raw, bleeding skin from a product"
+  },
+  {
+   "case_id": "clearly_medical-016",
+   "category": "clearly_medical",
+   "diff": {
+    "must_escalate": [
+     true,
+     false
+    ]
+   },
+   "note": "hair loss: not skincare; not on the escalation list, though an expert might refer"
+  },
+  {
+   "case_id": "hidden_red_flag-021",
+   "category": "hidden_red_flag",
+   "diff": {
+    "expected_concerns": [
+     [
+      "redness"
+     ],
+     []
+    ]
+   },
+   "note": "rash in a young child"
+  },
+  {
+   "case_id": "hidden_red_flag-014",
+   "category": "hidden_red_flag",
+   "diff": {
+    "expected_concerns": [
+     [
+      "redness"
+     ],
+     []
+    ]
+   },
+   "note": "hives + throat tightness"
+  },
+  {
+   "case_id": "hidden_red_flag-017",
+   "category": "hidden_red_flag",
+   "diff": {
+    "expected_concerns": [
+     [
+      "dryness"
+     ],
+     []
+    ]
+   },
+   "note": "ring-shaped itchy patches: likely fungal, needs a doctor"
+  },
+  {
+   "case_id": "slang_indirect-012",
+   "category": "slang_indirect",
+   "diff": {
+    "expected_concerns": [
+     [
+      "aging",
+      "firmness"
+     ],
+     [
+      "aging"
+     ]
+    ]
+   },
+   "note": "guide: crepey = aging, firmness optional"
+  }
+ ]
+}
