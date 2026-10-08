@@ -19,6 +19,8 @@ The core of the project is an application-level evaluation: 260 hand-written cas
 
 What the evaluation found: the original bot sent most medical red flags a greeting (fixed with a triage step); a bigger model didn't fix answer quality because the cause was in the pipeline (the concern detector's guesses were passed to the model as facts, and 45 of 106 catalog products weren't skincare); and the LLM judge passed validation for *Appropriate* (κ = 0.78) but not for *Helpful* (κ = 0.44), so *Helpful* is scored by code and hand labels instead.
 
+Every pull request also runs a fixed 24-case smoke set through the real pipeline ([eval-gate workflow](.github/workflows/eval-gate.yml)); the check fails if any safety or scope gate fails.
+
 ## What it does
 
 You can talk to it in plain English — "my skin is oily and I keep getting breakouts" — or upload a photo of your skin. Either way it:
@@ -144,6 +146,5 @@ PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · 
 
 - Use the requested product type in retrieval (the largest remaining quality failure) and stop treating unstated concerns as the user's in the remaining cases.
 - Add a triage rule for depigmentation and route makeup requests that mention skin as out of scope.
-- A CI regression gate that runs the dev split on every PR and blocks merges that fail a gate.
 - A labeled photo set for the image path; a domain expert's review of ingredient claims.
 - Merge the Sephora catalog and fix the haircare leak at the catalog level; swap in a managed vector store (e.g. Databricks Vector Search).

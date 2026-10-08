@@ -1,0 +1,66 @@
+name: eval-gate
+
+# Regression gate (EVAL_SPEC.md §7): runs the real pipeline on the fixed smoke
+# set (24 dev cases, eval/datasets/smoke.jsonl) and fails if the run is invalid
+# or any of the 7 gates fails. The full dev split can be run by hand from the
+# Actions tab. The locked test split is never run in CI.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      split:
+        description: "Cases to run"
+        type: choice
+        options: [smoke, dev]
+        default: smoke
+
+concurrency:
+  group: eval-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      SPLIT: ${{ inputs.split || 'smoke' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the API token is configured
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::The HF_TOKEN repository secret is not set, so the eval gate cannot run."
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: app/requirements.txt
+
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-models-${{ hashFiles('app/pipeline/config.py') }}
+
+      - run: pip install -r app/requirements.txt
+
+      - name: Run the eval gate
+        run: python eval/run_eval.py --split "$SPLIT" --ci --run-name "ci_${SPLIT}_${{ github.run_id }}"
+
+      - name: Upload the run (config, traces, metrics, report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-${{ env.SPLIT }}-${{ github.run_id }}
+          path: eval/results/ci_*
+          if-no-files-found: ignore

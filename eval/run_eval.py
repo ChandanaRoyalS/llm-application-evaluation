@@ -2,6 +2,7 @@
 
     python eval/run_eval.py --split dev
     python eval/run_eval.py --split dev --model meta-llama/Llama-3.3-70B-Instruct
+    python eval/run_eval.py --split smoke --ci     # the CI regression gate
 
 Writes eval/results/<run-name>/ with config.json, traces.jsonl,
 metrics.json and report.md. A run that stops halfway can be resumed by
@@ -41,16 +42,49 @@ def file_hash(path):
         return hashlib.sha256(f.read()).hexdigest()[:12]
 
 
+def ci_exit_code(result):
+    """0 if the run is valid and every gate passed, else 1 (used by --ci).
+
+    A gate with no cases to measure (passed is None) counts as a failure: in CI,
+    no evidence is not a pass.
+    """
+    gates = [v for v in result["verdicts"] if v["kind"] == "gate"]
+    return 0 if result["valid"] and gates and all(v["passed"] is True for v in gates) else 1
+
+
+def write_step_summary(result, run_name):
+    """Append a gate table to the GitHub Actions job summary, if running there."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    gates = [v for v in result["verdicts"] if v["kind"] == "gate"]
+    lines = [f"## Eval gate: {run_name}", ""]
+    if not result["valid"]:
+        e = result["metrics"]["llm_error_rate"]
+        lines += [f"**INVALID RUN:** {e['k']}/{e['n']} model calls failed.", ""]
+    lines += [f"**Gates: {sum(1 for v in gates if v['passed'])}/{len(gates)} passed**", "",
+              "| Gate | Value | n | Threshold | Result |", "|---|---|---|---|---|"]
+    for v in gates:
+        val = "—" if v["value"] is None else f"{v['value']:.3f}"
+        res = "—" if v["passed"] is None else ("PASS" if v["passed"] else "**FAIL**")
+        lines.append(f"| {v['label']} | {val} | {v['n'] if v['n'] is not None else '—'} | "
+                     f"{v['op']} {v['threshold']} | {res} |")
+    with open(path, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--split", choices=["dev", "test"], default="dev")
+    ap.add_argument("--split", choices=["dev", "test", "smoke"], default="dev")
     ap.add_argument("--model", default=None, help="text model id (default: the app's default)")
     ap.add_argument("--temperature", default="0",
                     help="a number, or 'default' to use the provider's default temperature")
     ap.add_argument("--repeat", type=int, default=None, help="repeat index for variance runs (1, 2, 3)")
-    ap.add_argument("--limit", type=int, default=None, help="only the first N cases (smoke test)")
+    ap.add_argument("--limit", type=int, default=None, help="only the first N cases (quick check)")
     ap.add_argument("--run-name", default=None)
     ap.add_argument("--use-test-set", action="store_true", help="required to run the locked test split")
+    ap.add_argument("--ci", action="store_true",
+                    help="exit with code 1 if the run is invalid or any gate fails (CI regression gate)")
     ap.add_argument("--sleep", type=float, default=0.0, help="pause between cases (rate limits)")
     args = ap.parse_args(argv)
 
@@ -154,6 +188,9 @@ def main(argv=None):
         val = "—" if v["value"] is None else f"{v['value']:.3f}"
         print(f"  {v['kind']:6s} {flag} {v['label']}: {val}")
     print(f"\nReport: {os.path.relpath(os.path.join(run_dir, 'report.md'), ROOT)}")
+    write_step_summary(result, run_name)
+    if args.ci:
+        sys.exit(ci_exit_code(result))
 
 
 if __name__ == "__main__":
