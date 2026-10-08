@@ -44,3 +44,13 @@ except json.JSONDecodeError:
 PRODUCT_FILTER = os.environ.get("PRODUCT_FILTER", "1") not in ("0", "false", "False")
 CONCERN_HINT = os.environ.get("CONCERN_HINT", "0") not in ("0", "false", "False")
 
+# Pipeline v3 (EVAL_SPEC changelog v1.19): retrieval keeps only products of the type
+# and within the budget the user asks for (app/pipeline/constraints.py). 0 = v2.
+CONSTRAINT_FILTER = os.environ.get("CONSTRAINT_FILTER", "1") not in ("0", "false", "False")
+
+
+def pipeline_version():
+    if not PRODUCT_FILTER or CONCERN_HINT:
+        return "v1"
+    return "v3" if CONSTRAINT_FILTER else "v2"
+

@@ -21,7 +21,7 @@ and still runs on **Databricks Apps** unchanged.
 | Databricks App | Databricks model serving | nothing — uses the app's service principal |
 
 The default text model is **Llama 3.3 70B**, the configuration selected by the evaluation (see `EVALUATION.md` in the repo root).
-Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MODEL`, `LLM_BASE_URL`, `TRIAGE_ENABLED`, `PRODUCT_FILTER`.
+Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MODEL`, `LLM_BASE_URL`, `TRIAGE_ENABLED`, `PRODUCT_FILTER`, `CONSTRAINT_FILTER`.
 
 ## Deploy to Hugging Face Spaces
 

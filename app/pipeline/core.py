@@ -10,7 +10,7 @@ the evaluation scores the rest.
 """
 import time
 
-from . import catalog, config, generation, llm, retrieval, triage, vision
+from . import catalog, config, constraints, generation, llm, retrieval, triage, vision
 
 MSG_NOT_READY = ("⏳ The assistant is still warming up (loading the recommendation "
                  "engine). Please try again in about 30 seconds.")
@@ -23,6 +23,8 @@ MSG_NO_CONCERN = (
     "products from our catalog.")
 MSG_NO_PRODUCTS = ("I couldn't find products in our catalog for that concern. "
                    "Could you describe it a little differently?")
+MSG_NO_MATCH = ("I couldn't find {what} in our catalog for that concern. If you're "
+                "flexible on the type or the price, tell me and I'll look again.")
 MSG_LLM_ERROR = ("Sorry — I'm having trouble reaching the recommendation model right "
                  "now. Please try again in a moment.")
 MSG_ESCALATE = (
@@ -125,10 +127,17 @@ def run_pipeline(query, model=None, temperature=None, use_triage=None):
             trace.update(status="no_concern", answer=MSG_NO_CONCERN)
             return trace
 
+        if config.CONSTRAINT_FILTER:
+            con = constraints.parse(query)
+            trace["constraints"] = {"forms": sorted(con["forms"]), "max_price": con["max_price"]}
         product_ids = retrieval.retrieve(query, concerns)
         trace["retrieved_product_ids"] = product_ids
         if not product_ids:
-            trace.update(status="no_products", answer=MSG_NO_PRODUCTS)
+            if config.CONSTRAINT_FILTER and constraints.active(con):
+                answer = MSG_NO_MATCH.format(what=constraints.describe(con))
+            else:
+                answer = MSG_NO_PRODUCTS
+            trace.update(status="no_products", answer=answer)
             return trace
 
         context_text, number_to_id = generation.build_context(product_ids)
