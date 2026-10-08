@@ -31,17 +31,23 @@ def load_prices():
         return json.load(f)
 
 
-def run_cost_per_1k(run_dir, model, prices):
-    p = prices.get(model)
-    if not p:
+def run_cost_per_1k(run_dir, cfg, prices):
+    """List-price cost per 1,000 user messages. Triage and answer tokens are priced
+    with their own models' prices."""
+    answer_p = prices.get(cfg["model"])
+    triage_p = prices.get(cfg.get("triage_model") or cfg["model"])
+    if not answer_p or not triage_p:
         return None
     traces = load_jsonl(os.path.join(run_dir, "traces.jsonl"))
-    llm = [t for t in traces if t.get("prompt_tokens") is not None]
     if not traces:
         return None
-    total = sum(t["prompt_tokens"] * p["input"] + (t.get("completion_tokens") or 0) * p["output"]
-                for t in llm) / 1_000_000
-    return 1000 * total / len(traces)        # per 1,000 user messages, all paths included
+    total = 0.0
+    for t in traces:
+        tp, tc = t.get("triage_prompt_tokens") or 0, t.get("triage_completion_tokens") or 0
+        ap_, ac = (t.get("prompt_tokens") or 0) - tp, (t.get("completion_tokens") or 0) - tc
+        total += tp * triage_p["input"] + tc * triage_p["output"]
+        total += ap_ * answer_p["input"] + ac * answer_p["output"]
+    return 1000 * (total / 1_000_000) / len(traces)
 
 
 def llm_latency(run_dir, q):
@@ -52,15 +58,30 @@ def llm_latency(run_dir, q):
     return None if v is None else v / 1000
 
 
-def latest_runs(split):
+def config_label(cfg):
+    """Human label for a configuration: answer model, plus the triage model if different."""
+    label = cfg["model"].split("/")[-1]
+    tm = cfg.get("triage_model")
+    if cfg.get("triage_enabled") is False:
+        label += " (no triage)"
+    elif tm and tm != cfg["model"]:
+        label += f" + triage {tm.split('/')[-1]}"
+    return label
+
+
+def latest_runs(split, triage_only=True):
+    """Latest temperature-0 run per configuration for a split."""
     runs = {}
     for d in sorted(glob.glob(os.path.join(HERE, "results", "*"))):
         cfg = os.path.join(d, "config.json")
         if not os.path.exists(cfg):
             continue
         c = json.load(open(cfg, encoding="utf-8"))
-        if c.get("split") == split and c.get("temperature") == 0:
-            runs[c["model"]] = d               # sorted by name = timestamp, so latest wins
+        if c.get("split") != split or c.get("temperature") != 0:
+            continue
+        if triage_only and not c.get("triage_enabled"):
+            continue
+        runs[config_label(c)] = d               # sorted by name = timestamp, so latest wins
     return list(runs.values())
 
 
@@ -75,15 +96,15 @@ def compare(run_dirs, baseline=None, name=None):
     runs = []
     for d in run_dirs:
         res = score_run(d)
-        model = res["config"]["model"]
+        model = config_label(res["config"])
         per_case = {r["id"]: r.get("checks", {}) for r in res["per_case"]}
         runs.append({"dir": d, "model": model, "res": res, "per_case": per_case,
-                     "cost_per_1k": run_cost_per_1k(d, model, prices),
+                     "cost_per_1k": run_cost_per_1k(d, res["config"], prices),
                      "llm_p50": llm_latency(d, 0.5), "llm_p95": llm_latency(d, 0.95),
                      "p95": res["metrics"]["latency_p95_s"]["value"],
                      "p50": res["metrics"]["latency_p50_s"]["value"]})
     split = runs[0]["res"]["config"]["split"]
-    base = next((r for r in runs if r["model"] == baseline), runs[0])
+    base = next((r for r in runs if baseline and r["model"] == baseline), runs[0])
 
     for r in runs:
         v = {x["key"]: x for x in r["res"]["verdicts"]}
@@ -120,7 +141,8 @@ def compare(run_dirs, baseline=None, name=None):
                     f"Gates failed by every candidate: {', '.join(common) or 'none in common'}.")
 
     name = name or f"{datetime.date.today():%Y%m%d}_{split}_" + "-vs-".join(
-        r["model"].split("/")[-1].lower() for r in runs)[:120]
+        r["model"].lower() for r in runs)[:120]
+    name = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in name)
     out_dir = os.path.join(HERE, "results", "comparisons")
     os.makedirs(out_dir, exist_ok=True)
     md = render(runs, base, paired, decision, split)
@@ -167,7 +189,7 @@ def render(runs, base, paired, decision, split):
         o.append(f"| `{r['model']}` | {c} | {r['p50']:.2f}s / {r['p95']:.2f}s | "
                  f"{r['llm_p50']:.2f}s / {r['llm_p95']:.2f}s | {'yes' if r['eligible'] else 'no'} |")
     o.append("")
-    o.append(f"## Paired differences vs `{base['model'].split('/')[-1]}`\n")
+    o.append(f"## Paired differences vs `{base['model']}`\n")
     o.append("Same cases, candidate minus baseline. A difference whose interval includes 0 is not "
              "distinguishable from noise.\n")
     o.append("| Model | Metric | n | Difference | 95% CI | McNemar p |\n|---|---|---|---|---|---|")
@@ -175,7 +197,7 @@ def render(runs, base, paired, decision, split):
         for key, v in mets.items():
             if v["diff"] is None:
                 continue
-            o.append(f"| `{model.split('/')[-1]}` | {key} | {v['n']} | {100 * v['diff']:+.1f} pp | "
+            o.append(f"| `{model}` | {key} | {v['n']} | {100 * v['diff']:+.1f} pp | "
                      f"{100 * v['ci_low']:+.1f} to {100 * v['ci_high']:+.1f} pp | {v['mcnemar_p']:.2f} |")
     o.append("")
     return "\n".join(o)
@@ -185,10 +207,10 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("runs", nargs="*")
     ap.add_argument("--split", choices=["dev", "test"])
-    ap.add_argument("--baseline", default="meta-llama/Llama-3.1-8B-Instruct")
+    ap.add_argument("--baseline", default=None, help="config label of the baseline (default: first run)")
     ap.add_argument("--name")
     a = ap.parse_args()
     dirs = a.runs or latest_runs(a.split or "dev")
     if a.baseline:
-        dirs.sort(key=lambda d: json.load(open(os.path.join(d, "config.json")))["model"] != a.baseline)
+        dirs.sort(key=lambda d: config_label(json.load(open(os.path.join(d, "config.json")))) != a.baseline)
     compare(dirs, a.baseline, a.name)
