@@ -124,4 +124,6 @@ PySpark · Databricks (Unity Catalog, Delta tables) · sentence-transformers · 
 
 The next phase makes evaluation a core part of the project: a labeled test set organized by failure type (including hidden medical red flags and prompt injection), checks for each component (concern detection, retrieval, groundedness, safety, photo routing) and for the whole system, an LLM judge validated against human labels, a model comparison with confidence intervals, and a CI regression gate.
 
+What "good" means — every metric, pass threshold and the model-selection rule — is fixed in advance in [EVAL_SPEC.md](EVAL_SPEC.md), before any results are seen.
+
 After that: merge the Sephora catalog, fix the haircare leak with a category signal, and swap in a managed vector store (e.g. Databricks Vector Search).
