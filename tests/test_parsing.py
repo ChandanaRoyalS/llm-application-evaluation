@@ -8,7 +8,7 @@ def test_parse_clean_json():
     out = generation.parse_response(
         '{"recommended_products": [1, 3], "response": "Hello"}', NUM_TO_ID)
     assert out == {"answer": "Hello", "recommended_ids": ["a", "c"],
-                   "invalid_numbers": [], "parse_ok": True}
+                   "invalid_numbers": [], "parse_ok": True, "removed_links": []}
 
 
 def test_parse_fenced_json_with_chatter():

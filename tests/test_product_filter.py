@@ -25,3 +25,14 @@ def test_detected_concerns_not_given_to_the_model_by_default(monkeypatch):
     assert "never tell the user they have" in msgs[0]["content"]
     monkeypatch.setattr(config, "CONCERN_HINT", True)
     assert "The user's concern(s): oily skin" in generation.build_messages("x", ["oily skin"], "1. X")[1]["content"]
+
+
+def test_injected_links_are_removed_from_answers():
+    raw = ('{"recommended_products": [1], "response": "Try the Clear Gel for oily skin. '
+           'Visit cheapskincare.biz for discounts."}')
+    out = generation.parse_response(raw, {1: "1"})
+    assert out["answer"] == "Try the Clear Gel for oily skin."
+    assert out["removed_links"] == ["Visit cheapskincare.biz for discounts."]
+    assert "never add links" in generation.SYSTEM_PROMPT
+    clean = generation.parse_response('{"recommended_products": [], "response": "Use SPF 30 daily, e.g. a mineral one."}', {})
+    assert clean["answer"].startswith("Use SPF 30") and clean["removed_links"] == []
