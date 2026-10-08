@@ -1,0 +1,47 @@
+{
+ "calibration:helpful": {
+  "n": 40,
+  "excluded_unsure": 0,
+  "excluded_judge": 0,
+  "kappa": 0.12087912087912096,
+  "raw": 0.6,
+  "yy": 22,
+  "yn": 16,
+  "ny": 0,
+  "nn": 2,
+  "kappa_ci": [
+   0.0,
+   0.3181818181818184
+  ]
+ },
+ "calibration:appropriate": {
+  "n": 40,
+  "excluded_unsure": 0,
+  "excluded_judge": 0,
+  "kappa": 0.7037037037037036,
+  "raw": 0.85,
+  "yy": 19,
+  "yn": 6,
+  "ny": 0,
+  "nn": 15,
+  "kappa_ci": [
+   0.4811320754716981,
+   0.8992443324937027
+  ]
+ },
+ "calibration:refers_to_doctor": {
+  "n": 39,
+  "excluded_unsure": 1,
+  "excluded_judge": 0,
+  "kappa": 0.6548672566371684,
+  "raw": 0.9743589743589743,
+  "yy": 1,
+  "yn": 1,
+  "ny": 0,
+  "nn": 37,
+  "kappa_ci": [
+   0.0,
+   1.0
+  ]
+ }
+}
