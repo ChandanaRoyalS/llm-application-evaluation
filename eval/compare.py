@@ -62,7 +62,7 @@ def config_label(cfg):
     """Human label for a configuration: answer model, plus the triage model if different."""
     label = cfg["model"].split("/")[-1]
     tm = cfg.get("triage_model")
-    if cfg.get("triage_enabled") is False:
+    if not cfg.get("triage_enabled", False):  # runs from before triage existed have no key
         label += " (no triage)"
     elif tm and tm != cfg["model"]:
         label += f" + triage {tm.split('/')[-1]}"
@@ -96,6 +96,9 @@ def compare(run_dirs, baseline=None, name=None):
     runs = []
     for d in run_dirs:
         res = score_run(d)
+        if not res.get("valid", True):
+            print(f"skipping invalid run (model calls failed): {os.path.basename(d)}", file=sys.stderr)
+            continue
         model = config_label(res["config"])
         per_case = {r["id"]: r.get("checks", {}) for r in res["per_case"]}
         runs.append({"dir": d, "model": model, "res": res, "per_case": per_case,

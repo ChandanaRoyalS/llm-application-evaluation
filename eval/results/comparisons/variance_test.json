@@ -1,0 +1,313 @@
+{
+ "Llama-3.1-8B-Instruct": {
+  "no_concern_accuracy": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "groundedness": {
+   "values": [
+    0.9861111111111112
+   ],
+   "mean": 0.9861111111111112,
+   "min": 0.9861111111111112,
+   "max": 0.9861111111111112
+  },
+  "parse_rate": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "escalation_recall": {
+   "values": [
+    0.7837837837837838
+   ],
+   "mean": 0.7837837837837838,
+   "min": 0.7837837837837838,
+   "max": 0.7837837837837838
+  },
+  "off_topic_compliance": {
+   "values": [
+    0.9402985074626866
+   ],
+   "mean": 0.9402985074626866,
+   "min": 0.9402985074626866,
+   "max": 0.9402985074626866
+  },
+  "injection_resistance": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "crash_rate": {
+   "values": [
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "Llama-3.1-8B-Instruct + triage Llama-3.3-70B-Instruct": {
+  "no_concern_accuracy": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "groundedness": {
+   "values": [
+    0.9571428571428572
+   ],
+   "mean": 0.9571428571428572,
+   "min": 0.9571428571428572,
+   "max": 0.9571428571428572
+  },
+  "parse_rate": {
+   "values": [
+    0.9714285714285714
+   ],
+   "mean": 0.9714285714285714,
+   "min": 0.9714285714285714,
+   "max": 0.9714285714285714
+  },
+  "escalation_recall": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "off_topic_compliance": {
+   "values": [
+    0.9552238805970149
+   ],
+   "mean": 0.9552238805970149,
+   "min": 0.9552238805970149,
+   "max": 0.9552238805970149
+  },
+  "injection_resistance": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "crash_rate": {
+   "values": [
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "Llama-3.3-70B-Instruct": {
+  "no_concern_accuracy": {
+   "values": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "groundedness": {
+   "values": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "parse_rate": {
+   "values": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "escalation_recall": {
+   "values": [
+    0.972972972972973,
+    0.972972972972973,
+    0.972972972972973,
+    0.972972972972973
+   ],
+   "mean": 0.972972972972973,
+   "min": 0.972972972972973,
+   "max": 0.972972972972973
+  },
+  "off_topic_compliance": {
+   "values": [
+    0.9701492537313433,
+    0.9701492537313433,
+    0.9701492537313433,
+    0.9701492537313433
+   ],
+   "mean": 0.9701492537313433,
+   "min": 0.9701492537313433,
+   "max": 0.9701492537313433
+  },
+  "injection_resistance": {
+   "values": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "crash_rate": {
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "Qwen3-235B-A22B-Instruct-2507": {
+  "no_concern_accuracy": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "groundedness": {
+   "values": [
+    0.9701492537313433
+   ],
+   "mean": 0.9701492537313433,
+   "min": 0.9701492537313433,
+   "max": 0.9701492537313433
+  },
+  "parse_rate": {
+   "values": [
+    0.9701492537313433
+   ],
+   "mean": 0.9701492537313433,
+   "min": 0.9701492537313433,
+   "max": 0.9701492537313433
+  },
+  "escalation_recall": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "off_topic_compliance": {
+   "values": [
+    0.9850746268656716
+   ],
+   "mean": 0.9850746268656716,
+   "min": 0.9850746268656716,
+   "max": 0.9850746268656716
+  },
+  "injection_resistance": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "crash_rate": {
+   "values": [
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "gemma-3-27b-it": {
+  "no_concern_accuracy": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "groundedness": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "parse_rate": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "escalation_recall": {
+   "values": [
+    1.0
+   ],
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  "off_topic_compliance": {
+   "values": [
+    0.9701492537313433
+   ],
+   "mean": 0.9701492537313433,
+   "min": 0.9701492537313433,
+   "max": 0.9701492537313433
+  },
+  "injection_resistance": {
+   "values": [
+    0.9166666666666666
+   ],
+   "mean": 0.9166666666666666,
+   "min": 0.9166666666666666,
+   "max": 0.9166666666666666
+  },
+  "crash_rate": {
+   "values": [
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ }
+}

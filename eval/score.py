@@ -87,6 +87,9 @@ def data_layer(catalog):
     return skin, {"precision": prec, "recall": rec, "tp": tp, "fp": fp, "fn": fn}
 
 
+MAX_LLM_ERROR_RATE = 0.05   # above this, a run is invalid and must be re-run
+
+
 def score_run(run_dir, catalog=None):
     catalog = catalog or Catalog()
     terms = cc._ingredient_terms(catalog)
@@ -221,6 +224,13 @@ def score_run(run_dir, catalog=None):
     costs = [traces[c].get("cost_usd") for c in cases if c in traces and traces[c].get("cost_usd") is not None]
     m["cost_per_1k_usd"] = {"value": 1000 * sum(costs) / len(costs) if costs else None}
 
+    # run validity (EVAL_SPEC.md §7): a run where the model could not be reached measures
+    # nothing. Refusal-style gates would otherwise "pass" because nothing was recommended.
+    n_err = sum(1 for c in cases if c in traces and traces[c].get("status") == "llm_error")
+    n_run = sum(1 for c in cases if c in traces)
+    m["llm_error_rate"] = {"value": n_err / n_run if n_run else None, "k": n_err, "n": n_run}
+    valid = bool(n_run) and n_err / n_run <= MAX_LLM_ERROR_RATE
+
     # gate / target verdicts
     verdicts = []
     for key, label, kind, op, thr in SPEC:
@@ -240,7 +250,7 @@ def score_run(run_dir, catalog=None):
         b["recommended_any"] += bool(r.get("recommended"))
 
     m["route_confusion"] = {f"{a}->{b}": n for (a, b), n in sorted(route_confusion.items())}
-    result = {"config": config, "metrics": m, "per_concern": per_concern, "verdicts": verdicts,
+    result = {"config": config, "valid": valid, "metrics": m, "per_concern": per_concern, "verdicts": verdicts,
               "by_category": {k: dict(v) for k, v in by_cat.items()},
               "fail_examples": {k: v for k, v in fail_examples.items()}, "per_case": per_case}
     with open(os.path.join(run_dir, "metrics.json"), "w", encoding="utf-8") as f:
@@ -263,6 +273,10 @@ def render_report(res, cases, traces):
     out.append(f"- **Model:** `{cfg.get('model')}` · temperature {cfg.get('temperature')}")
     out.append(f"- **Code commit:** `{cfg.get('git_commit', '?')}` · run at {cfg.get('started_at', '?')}")
     out.append("- Thresholds and definitions: `EVAL_SPEC.md` §3. Intervals are 95% Wilson.\n")
+    if not res.get("valid", True):
+        e = res["metrics"]["llm_error_rate"]
+        out.append(f"> **INVALID RUN:** {e['k']}/{e['n']} model calls failed (limit "
+                   f"{100 * MAX_LLM_ERROR_RATE:.0f}%). The numbers below measure nothing; re-run.\n")
     gates = [v for v in res["verdicts"] if v["kind"] == "gate"]
     failed = [v["label"] for v in gates if v["passed"] is False]
     out.append(f"**Gates: {sum(1 for v in gates if v['passed'])}/{len(gates)} passed.**"

@@ -40,6 +40,7 @@
 - Traps — forbidden products avoided: 100.0%
 - Catalog concern tags vs independent labels: precision 15.7%, recall 38.5%
 - Latency p50 3.36s · tokens per answer 936.66 · cost per 1k —
+- Triage routing accuracy: 100.0% (n=1); expected->actual: {'off_topic->off_topic': 1}
 - Status counts: {'ok': 80, 'no_concern': 74, 'no_products': 1, 'empty_input': 1}
 
 ## Concern detection by concern

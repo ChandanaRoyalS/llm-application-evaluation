@@ -1,0 +1,490 @@
+{
+ "split": "test",
+ "baseline": "Llama-3.1-8B-Instruct",
+ "decision": "Ship `Llama-3.3-70B-Instruct`: the cheapest configuration that passes every gate. Quality non-inferiority (\u00a75 step 3) is still pending the validated judge.",
+ "runs": [
+  {
+   "dir": "results/20261007-2204_test_llama-3.1-8b-instruct_t0",
+   "model": "Llama-3.1-8B-Instruct",
+   "eligible": false,
+   "cost_per_1k_usd": 0.024553525641025642,
+   "latency_p50_s": 1.4515,
+   "latency_p95_s": 7.47,
+   "answered_latency_p50_s": 5.5715,
+   "answered_latency_p95_s": 8.510399999999999,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 0.9861111111111112,
+     "ci_low": 0.9254321971571302,
+     "ci_high": 0.9975441113595678,
+     "n": 72,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9493470601886036,
+     "ci_high": 1.0,
+     "n": 72,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.7837837837837838,
+     "ci_low": 0.628045387261231,
+     "ci_high": 0.8861362314804442,
+     "n": 37,
+     "passed": false
+    },
+    "off_topic_compliance": {
+     "value": 0.9402985074626866,
+     "ci_low": 0.8563029501122377,
+     "ci_high": 0.9765410285669565,
+     "n": 67,
+     "passed": false
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/20261007-2213_test_llama-3.3-70b-instruct_t0",
+   "model": "Llama-3.3-70B-Instruct",
+   "eligible": true,
+   "cost_per_1k_usd": 0.16901875000000002,
+   "latency_p50_s": 0.915,
+   "latency_p95_s": 4.33,
+   "answered_latency_p50_s": 3.343,
+   "answered_latency_p95_s": 4.4778,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 1.0,
+     "ci_low": 0.9472609058559944,
+     "ci_high": 1.0,
+     "n": 69,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9472609058559944,
+     "ci_high": 1.0,
+     "n": 69,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.972972972972973,
+     "ci_low": 0.8617562156243666,
+     "ci_high": 0.9952131489450924,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9701492537313433,
+     "ci_low": 0.8975324995811698,
+     "ci_high": 0.991775477652546,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/20261007-2218_test_qwen3-235b-a22b-instruct-2507_t0",
+   "model": "Qwen3-235B-A22B-Instruct-2507",
+   "eligible": false,
+   "cost_per_1k_usd": 0.165741858974359,
+   "latency_p50_s": 1.445,
+   "latency_p95_s": 14.0295,
+   "answered_latency_p50_s": 6.203,
+   "answered_latency_p95_s": 16.056599999999996,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 0.9701492537313433,
+     "ci_low": 0.8975324995811698,
+     "ci_high": 0.991775477652546,
+     "n": 67,
+     "passed": false
+    },
+    "parse_rate": {
+     "value": 0.9701492537313433,
+     "ci_low": 0.8975324995811698,
+     "ci_high": 0.991775477652546,
+     "n": 67,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 1.0,
+     "ci_low": 0.9059390425448564,
+     "ci_high": 1.0,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9850746268656716,
+     "ci_low": 0.9201794802686531,
+     "ci_high": 0.997360496242323,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/20261007-2228_test_gemma-3-27b-it_t0",
+   "model": "gemma-3-27b-it",
+   "eligible": false,
+   "cost_per_1k_usd": 0.09233794871794866,
+   "latency_p50_s": 3.5475,
+   "latency_p95_s": 15.63675,
+   "answered_latency_p50_s": 10.8535,
+   "answered_latency_p95_s": 19.27275,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 1.0,
+     "ci_low": 0.9479751251327163,
+     "ci_high": 0.9999999999999999,
+     "n": 70,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9479751251327163,
+     "ci_high": 0.9999999999999999,
+     "n": 70,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 1.0,
+     "ci_low": 0.9059390425448564,
+     "ci_high": 1.0,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9701492537313433,
+     "ci_low": 0.8975324995811698,
+     "ci_high": 0.991775477652546,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 0.9166666666666666,
+     "ci_low": 0.6461140782014047,
+     "ci_high": 0.9851352905492264,
+     "n": 12,
+     "passed": false
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/20261007-2245_test_llama-3.1-8b-instruct_t0_triage-llama-3.3-70b-instruct",
+   "model": "Llama-3.1-8B-Instruct + triage Llama-3.3-70B-Instruct",
+   "eligible": false,
+   "cost_per_1k_usd": 0.1035478525641026,
+   "latency_p50_s": 0.9905,
+   "latency_p95_s": 8.95725,
+   "answered_latency_p50_s": 6.6135,
+   "answered_latency_p95_s": 10.398699999999998,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 0.9571428571428572,
+     "ci_low": 0.8814013892581987,
+     "ci_high": 0.9853187251488564,
+     "n": 70,
+     "passed": false
+    },
+    "parse_rate": {
+     "value": 0.9714285714285714,
+     "ci_low": 0.9016755648760818,
+     "ci_high": 0.9921295531061937,
+     "n": 70,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 1.0,
+     "ci_low": 0.9059390425448564,
+     "ci_high": 1.0,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9552238805970149,
+     "ci_low": 0.8764196748946068,
+     "ci_high": 0.9846563030618481,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  }
+ ],
+ "paired_vs_baseline": {
+  "Llama-3.3-70B-Instruct": {
+   "groundedness": {
+    "n": 68,
+    "diff": 0.014705882352941176,
+    "ci_low": 0.0,
+    "ci_high": 0.04411764705882353,
+    "mcnemar_p": 1.0
+   },
+   "parse_rate": {
+    "n": 68,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.1891891891891892,
+    "ci_low": 0.08108108108108109,
+    "ci_high": 0.32432432432432434,
+    "mcnemar_p": 0.015625
+   },
+   "escalated_but_sold": {
+    "n": 29,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": 0.029850746268656716,
+    "ci_low": 0.0,
+    "ci_high": 0.07462686567164178,
+    "mcnemar_p": 0.5
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  },
+  "Qwen3-235B-A22B-Instruct-2507": {
+   "groundedness": {
+    "n": 65,
+    "diff": -0.015384615384615385,
+    "ci_low": -0.07692307692307693,
+    "ci_high": 0.03076923076923077,
+    "mcnemar_p": 1.0
+   },
+   "parse_rate": {
+    "n": 65,
+    "diff": -0.03076923076923077,
+    "ci_low": -0.07692307692307693,
+    "ci_high": 0.0,
+    "mcnemar_p": 0.5
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.21621621621621623,
+    "ci_low": 0.10810810810810811,
+    "ci_high": 0.35135135135135137,
+    "mcnemar_p": 0.0078125
+   },
+   "escalated_but_sold": {
+    "n": 29,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": 0.04477611940298507,
+    "ci_low": -0.014925373134328358,
+    "ci_high": 0.11940298507462686,
+    "mcnemar_p": 0.375
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  },
+  "gemma-3-27b-it": {
+   "groundedness": {
+    "n": 68,
+    "diff": 0.014705882352941176,
+    "ci_low": 0.0,
+    "ci_high": 0.04411764705882353,
+    "mcnemar_p": 1.0
+   },
+   "parse_rate": {
+    "n": 68,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.21621621621621623,
+    "ci_low": 0.10810810810810811,
+    "ci_high": 0.35135135135135137,
+    "mcnemar_p": 0.0078125
+   },
+   "escalated_but_sold": {
+    "n": 29,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": 0.029850746268656716,
+    "ci_low": 0.0,
+    "ci_high": 0.07462686567164178,
+    "mcnemar_p": 0.5
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": -0.08333333333333333,
+    "ci_low": -0.25,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  },
+  "Llama-3.1-8B-Instruct + triage Llama-3.3-70B-Instruct": {
+   "groundedness": {
+    "n": 69,
+    "diff": -0.028985507246376812,
+    "ci_low": -0.07246376811594203,
+    "ci_high": 0.0,
+    "mcnemar_p": 0.5
+   },
+   "parse_rate": {
+    "n": 69,
+    "diff": -0.028985507246376812,
+    "ci_low": -0.07246376811594203,
+    "ci_high": 0.0,
+    "mcnemar_p": 0.5
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.21621621621621623,
+    "ci_low": 0.10810810810810811,
+    "ci_high": 0.35135135135135137,
+    "mcnemar_p": 0.0078125
+   },
+   "escalated_but_sold": {
+    "n": 29,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": 0.014925373134328358,
+    "ci_low": 0.0,
+    "ci_high": 0.04477611940298507,
+    "mcnemar_p": 1.0
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  }
+ }
+}

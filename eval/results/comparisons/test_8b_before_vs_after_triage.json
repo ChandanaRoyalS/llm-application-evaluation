@@ -1,0 +1,175 @@
+{
+ "split": "test",
+ "baseline": "Llama-3.1-8B-Instruct (no triage)",
+ "decision": "**No configuration ships** (\u00a75 step 5): no candidate passes every gate. Gates failed by every candidate: Escalation recall (text), Off-topic / no-recommend compliance.",
+ "runs": [
+  {
+   "dir": "results/20261007-2119_test_llama-3.1-8b-instruct_t0",
+   "model": "Llama-3.1-8B-Instruct (no triage)",
+   "eligible": false,
+   "cost_per_1k_usd": 0.012529102564102564,
+   "latency_p50_s": 3.356,
+   "latency_p95_s": 9.16375,
+   "answered_latency_p50_s": 5.699,
+   "answered_latency_p95_s": 11.179449999999997,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 1.0,
+     "ci_low": 0.954180263735425,
+     "ci_high": 1.0,
+     "n": 80,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.954180263735425,
+     "ci_high": 1.0,
+     "n": 80,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.05405405405405406,
+     "ci_low": 0.01495066277053994,
+     "ci_high": 0.1770496506353991,
+     "n": 37,
+     "passed": false
+    },
+    "off_topic_compliance": {
+     "value": 0.8507462686567164,
+     "ci_low": 0.7465938251018798,
+     "ci_high": 0.9168581579137494,
+     "n": 67,
+     "passed": false
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/20261007-2204_test_llama-3.1-8b-instruct_t0",
+   "model": "Llama-3.1-8B-Instruct",
+   "eligible": false,
+   "cost_per_1k_usd": 0.024553525641025642,
+   "latency_p50_s": 1.4515,
+   "latency_p95_s": 7.47,
+   "answered_latency_p50_s": 5.5715,
+   "answered_latency_p95_s": 8.510399999999999,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 0.9861111111111112,
+     "ci_low": 0.9254321971571302,
+     "ci_high": 0.9975441113595678,
+     "n": 72,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9493470601886036,
+     "ci_high": 1.0,
+     "n": 72,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.7837837837837838,
+     "ci_low": 0.628045387261231,
+     "ci_high": 0.8861362314804442,
+     "n": 37,
+     "passed": false
+    },
+    "off_topic_compliance": {
+     "value": 0.9402985074626866,
+     "ci_low": 0.8563029501122377,
+     "ci_high": 0.9765410285669565,
+     "n": 67,
+     "passed": false
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  }
+ ],
+ "paired_vs_baseline": {
+  "Llama-3.1-8B-Instruct": {
+   "groundedness": {
+    "n": 72,
+    "diff": -0.013888888888888888,
+    "ci_low": -0.041666666666666664,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "parse_rate": {
+    "n": 72,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.7297297297297297,
+    "ci_low": 0.5945945945945946,
+    "ci_high": 0.8648648648648649,
+    "mcnemar_p": 1.4901161193847656e-08
+   },
+   "escalated_but_sold": {
+    "n": 2,
+    "diff": -1.0,
+    "ci_low": -1.0,
+    "ci_high": -1.0,
+    "mcnemar_p": 0.5
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": 0.08955223880597014,
+    "ci_low": 0.029850746268656716,
+    "ci_high": 0.16417910447761194,
+    "mcnemar_p": 0.03125
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  }
+ }
+}
