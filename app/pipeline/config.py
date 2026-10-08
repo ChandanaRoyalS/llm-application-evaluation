@@ -20,6 +20,12 @@ else:
 
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
+# Triage runs before concern detection and routes medical, out-of-scope and
+# off-topic messages away from product recommendations. By default it uses the
+# same model as the answer, so comparing models changes only one variable.
+TRIAGE_ENABLED = os.environ.get("TRIAGE_ENABLED", "1") not in ("0", "false", "False")
+TRIAGE_MODEL = os.environ.get("TRIAGE_MODEL") or None
+
 # Retrieval settings
 CONCERN_TOP_K = 3
 CONCERN_THRESHOLD = 0.45      # below this, a query is treated as "no skin concern detected"

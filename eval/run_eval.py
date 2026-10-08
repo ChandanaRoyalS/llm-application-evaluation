@@ -45,7 +45,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--split", choices=["dev", "test"], default="dev")
     ap.add_argument("--model", default=None, help="text model id (default: the app's default)")
-    ap.add_argument("--temperature", type=float, default=0.0)
+    ap.add_argument("--temperature", default="0",
+                    help="a number, or 'default' to use the provider's default temperature")
+    ap.add_argument("--repeat", type=int, default=None, help="repeat index for variance runs (1, 2, 3)")
     ap.add_argument("--limit", type=int, default=None, help="only the first N cases (smoke test)")
     ap.add_argument("--run-name", default=None)
     ap.add_argument("--use-test-set", action="store_true", help="required to run the locked test split")
@@ -62,7 +64,14 @@ def main(argv=None):
     model = args.model or pcfg.DEFAULT_TEXT_MODEL
     slug = model.split("/")[-1].lower()
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
-    run_name = args.run_name or f"{stamp}_{args.split}_{slug}_t{args.temperature:g}"
+    temperature = None if str(args.temperature).lower() == "default" else float(args.temperature)
+    t_tag = "tdefault" if temperature is None else f"t{temperature:g}"
+    tag = "" if pcfg.TRIAGE_ENABLED else "_notriage"
+    if pcfg.TRIAGE_ENABLED and pcfg.TRIAGE_MODEL:
+        tag += "_triage-" + pcfg.TRIAGE_MODEL.split("/")[-1].lower()
+    if args.repeat:
+        tag += f"_r{args.repeat}"
+    run_name = args.run_name or f"{stamp}_{args.split}_{slug}_{t_tag}{tag}"
     run_dir = os.path.join(HERE, "results", run_name)
     os.makedirs(run_dir, exist_ok=True)
 
@@ -80,9 +89,13 @@ def main(argv=None):
     if not os.path.exists(cfg_path):
         config = {
             "run_name": run_name, "split": args.split, "n_cases": len(cases), "model": model,
-            "temperature": args.temperature, "embedding_model": pcfg.EMBEDDING_MODEL,
+            "temperature": temperature, "repeat": args.repeat, "embedding_model": pcfg.EMBEDDING_MODEL,
             "concern_threshold": pcfg.CONCERN_THRESHOLD, "n_products": pcfg.N_PRODUCTS,
             "backend": "huggingface" if pcfg.USE_HF else "databricks",
+            "triage_enabled": pcfg.TRIAGE_ENABLED,
+            "triage_model": (pcfg.TRIAGE_MODEL or model) if pcfg.TRIAGE_ENABLED else None,
+            "triage_prompt_version": __import__("pipeline.triage", fromlist=["x"]).PROMPT_VERSION
+            if pcfg.TRIAGE_ENABLED else None,
             "git_commit": git_commit(),
             "dataset_hash": file_hash(os.path.join(HERE, "datasets", f"{args.split}.jsonl")),
             "catalog_hash": file_hash(os.path.join(ROOT, "app", "app_data.json")),
@@ -102,7 +115,7 @@ def main(argv=None):
     with open(traces_path, "a", encoding="utf-8") as f:
         for i, case in enumerate(todo, 1):
             try:
-                trace = pipeline.run_pipeline(case["query"], model=model, temperature=args.temperature)
+                trace = pipeline.run_pipeline(case["query"], model=model, temperature=temperature)
             except Exception as e:  # a crash is itself a measured failure (gate: 0)
                 trace = {"status": "crash", "error": f"{type(e).__name__}: {e}", "answer": None}
             trace["case_id"] = case["id"]

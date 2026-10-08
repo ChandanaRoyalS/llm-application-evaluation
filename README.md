@@ -84,6 +84,7 @@ app/
   app.py            Gradio UI (runs on Hugging Face Spaces or Databricks Apps)
   pipeline/         all app logic — shared by the UI and the evaluation
     core.py         run_pipeline() / run_image_pipeline(): return a trace of every step
+    triage.py       routes medical, out-of-scope and off-topic messages before anything else
     retrieval.py    concern detection + hybrid retrieval
     generation.py   grounded prompt + structured (JSON) output parsing
     vision.py       photo triage: recommend / escalate / retake

@@ -10,7 +10,7 @@ the evaluation scores the rest.
 """
 import time
 
-from . import catalog, config, generation, llm, retrieval, vision
+from . import catalog, config, generation, llm, retrieval, triage, vision
 
 MSG_NOT_READY = ("⏳ The assistant is still warming up (loading the recommendation "
                  "engine). Please try again in about 30 seconds.")
@@ -32,6 +32,16 @@ MSG_ESCALATE = (
 MSG_RETAKE = ("📸 I couldn't analyze your skin clearly from this photo. Could you "
               "share a clearer, well-lit photo of your face?")
 MSG_NO_PHOTO = "Please upload a photo first."
+MSG_MEDICAL = (
+    "🩺 What you're describing should be checked by a doctor or dermatologist, so I "
+    "won't suggest products for it. I can only help with cosmetic skincare. If you "
+    "have swelling of the face, lips or throat, trouble breathing, or a rash that is "
+    "spreading fast, feels hot or comes with a fever, please seek urgent medical care "
+    "right away.")
+MSG_OUT_OF_SCOPE = (
+    "I can only help with skincare, so I can't recommend hair, makeup, fragrance or "
+    "other products. If you have a skin concern — like oiliness, breakouts, dryness, "
+    "dark spots or fine lines — tell me about it and I'll suggest something.")
 
 MAX_QUERY_CHARS = 2000
 
@@ -44,7 +54,8 @@ def _new_trace(kind, model):
         "recommended_ids": None, "invalid_numbers": [], "parse_ok": None,
         "prompt_tokens": None, "completion_tokens": None,
         "llm_latency_ms": None, "total_latency_ms": None, "cost_usd": None,
-        "error": None,
+        "error": None, "triage_route": None, "triage_reason": None, "triage_parse_ok": None,
+        "triage_prompt_tokens": None, "triage_completion_tokens": None, "triage_latency_ms": None,
     }
 
 
@@ -57,8 +68,18 @@ def _not_ready(trace):
     return trace
 
 
-def run_pipeline(query, model=None, temperature=None):
-    """Text path: detect concerns -> hybrid retrieve -> grounded structured answer."""
+def _add_tokens(trace, prompt, completion):
+    if prompt is not None:
+        trace["prompt_tokens"] = (trace["prompt_tokens"] or 0) + prompt
+    if completion is not None:
+        trace["completion_tokens"] = (trace["completion_tokens"] or 0) + completion
+
+
+def run_pipeline(query, model=None, temperature=None, use_triage=None):
+    """Text path: triage -> detect concerns -> hybrid retrieve -> grounded structured answer.
+
+    Token counts in the trace are totals (triage + generation); the triage share is
+    also stored separately."""
     model = model or config.DEFAULT_TEXT_MODEL
     trace = _new_trace("text", model)
     trace["query"] = query
@@ -75,6 +96,27 @@ def run_pipeline(query, model=None, temperature=None):
         if len(query) > MAX_QUERY_CHARS:
             query = query[:MAX_QUERY_CHARS]
             trace["truncated"] = True
+
+        if config.TRIAGE_ENABLED if use_triage is None else use_triage:
+            try:
+                t = triage.classify(query, config.TRIAGE_MODEL or model, temperature=0.0)
+            except llm.LLMError as e:
+                trace.update(status="llm_error", answer=MSG_LLM_ERROR, error=f"triage: {e}")
+                return trace
+            trace.update(triage_route=t["route"], triage_reason=t["reason"],
+                         triage_parse_ok=t["parse_ok"], triage_prompt_tokens=t["prompt_tokens"],
+                         triage_completion_tokens=t["completion_tokens"],
+                         triage_latency_ms=t["latency_ms"])
+            _add_tokens(trace, t["prompt_tokens"], t["completion_tokens"])
+            if t["route"] == "medical":
+                trace.update(status="escalated", answer=MSG_MEDICAL, recommended_ids=[])
+                return trace
+            if t["route"] == "out_of_scope":
+                trace.update(status="out_of_scope", answer=MSG_OUT_OF_SCOPE, recommended_ids=[])
+                return trace
+            if t["route"] == "off_topic":
+                trace.update(status="off_topic", answer=MSG_NO_CONCERN, recommended_ids=[])
+                return trace
 
         concerns, scores = retrieval.detect_concerns(query)
         trace["detected_concerns"] = concerns
@@ -99,10 +141,9 @@ def run_pipeline(query, model=None, temperature=None):
             trace.update(status="llm_error", answer=MSG_LLM_ERROR, error=str(e))
             return trace
 
-        trace.update(raw_llm_output=result["text"],
-                     prompt_tokens=result["prompt_tokens"],
-                     completion_tokens=result["completion_tokens"],
-                     llm_latency_ms=result["latency_ms"], cost_usd=result["cost_usd"])
+        trace.update(raw_llm_output=result["text"], llm_latency_ms=result["latency_ms"],
+                     cost_usd=result["cost_usd"])
+        _add_tokens(trace, result["prompt_tokens"], result["completion_tokens"])
         trace.update(generation.parse_response(result["text"], number_to_id))
         trace["status"] = "ok"
         return trace
@@ -157,7 +198,7 @@ def run_image_pipeline(image_path, vision_model=None, text_model=None, temperatu
                 "like help with in the Chat tab?"))
         else:
             text_trace = run_pipeline("my skin shows " + " and ".join(parsed["concerns"]),
-                                      model=text_model, temperature=temperature)
+                                      model=text_model, temperature=temperature, use_triage=False)
             trace["text_trace"] = text_trace
             trace.update(status="ok", answer=(
                 header + f"✨ I can see signs of: **{', '.join(parsed['concerns'])}**. "

@@ -51,3 +51,11 @@ def test_vision_invalid_decision_falls_back_to_retake():
 def test_vision_garbage_falls_back_to_retake():
     out = vision.parse_decision("I cannot help with that.")
     assert out["decision"] == "retake" and out["parse_ok"] is False
+
+
+def test_triage_route_parsing():
+    from pipeline import triage
+    assert triage.parse_route('{"route": "Medical", "reason": "bleeding mole"}')[:2] == ("medical", "bleeding mole")
+    assert triage.parse_route('```json\n{"route": "out-of-scope"}\n```')[0] == "out_of_scope"
+    assert triage.parse_route("no idea") == ("cosmetic", "triage output could not be parsed", False)
+    assert triage.parse_route('{"route": "dangerous"}')[2] is False
