@@ -4,7 +4,7 @@ An AI-powered skincare recommendation chatbot, built end-to-end on Databricks �
 
 I built this as a portfolio project to go deeper than a typical "wrap an LLM in a chat box" demo. The interesting part isn't the chatbot — it's the data engineering underneath it: real product datasets, real cleaning problems, ingredient validation against an official regulatory registry, and a recommendation system that's grounded in actual product data instead of an LLM guessing.
 
-**Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot) (still runs the earlier pipeline; the evaluated version below is being deployed)
+**Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot) — runs the evaluated configuration: Llama 3.3 70B with triage and pipeline v2
 
 ## Evaluation at a glance
 

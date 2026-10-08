@@ -20,7 +20,8 @@ and still runs on **Databricks Apps** unchanged.
 | Hugging Face Space | Hugging Face Inference Providers | `HF_TOKEN` secret |
 | Databricks App | Databricks model serving | nothing — uses the app's service principal |
 
-Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MODEL`, `LLM_BASE_URL`.
+The default text model is **Llama 3.3 70B**, the configuration selected by the evaluation (see `EVALUATION.md` in the repo root).
+Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MODEL`, `LLM_BASE_URL`, `TRIAGE_ENABLED`, `PRODUCT_FILTER`.
 
 ## Deploy to Hugging Face Spaces
 
