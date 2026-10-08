@@ -7,7 +7,7 @@ number must exist in the context we gave it.
 import json
 import re
 
-from . import catalog
+from . import catalog, config
 
 SYSTEM_PROMPT = (
     "You are a knowledgeable, friendly skincare assistant. Follow these rules strictly:\n"
@@ -15,7 +15,9 @@ SYSTEM_PROMPT = (
     "2. When explaining why a product helps, refer ONLY to the ingredients and "
     "concerns actually listed for that product. Do NOT invent ingredients, "
     "benefits, claims, or product links.\n"
-    "3. Address ONLY the concerns the user actually mentioned. Do NOT assume other concerns.\n"
+    "3. Address ONLY the concerns in the user's own message. A product's 'Treats' list is "
+    "not the user's concern: never tell the user they have oily skin, acne or any other "
+    "concern they did not mention.\n"
     "4. Keep a warm but professional tone. No pet names.\n"
     "5. Give cosmetic guidance only. Do NOT diagnose medical conditions. If the "
     "concern sounds severe or medical, gently suggest seeing a dermatologist.\n"
@@ -43,7 +45,7 @@ def build_context(product_ids):
 def build_messages(query_text, concerns, context_text):
     user_prompt = (
         f'User\'s message: "{query_text}"\n\n'
-        f"The user's concern(s): {', '.join(concerns)}\n\n"
+        + (f"The user's concern(s): {', '.join(concerns)}\n\n" if config.CONCERN_HINT else "") +
         f"Products from our catalog (use ONLY these, and only their listed ingredients):\n"
         f"{context_text}\n\n"
         f"Write a warm, professional recommendation. Mention specific ingredients "

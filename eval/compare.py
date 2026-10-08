@@ -66,6 +66,8 @@ def config_label(cfg):
         label += " (no triage)"
     elif tm and tm != cfg["model"]:
         label += f" + triage {tm.split('/')[-1]}"
+    if cfg.get("pipeline_version", "v1") != "v1":
+        label += f" [pipeline {cfg['pipeline_version']}]"
     return label
 
 
