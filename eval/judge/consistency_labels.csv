@@ -1,0 +1,21 @@
+item_id,helpful,appropriate,refers_to_doctor,helpful_fails,appropriate_fails,doctor_code,annotator,notes
+L013,yes,yes,yes,,,D_YES,claude-ai (second pass),"conditional referral on painful+scarring, which the user stated; hyperpigmentation framed as common with acne, not as theirs"
+L014,yes,no,no,,A1,D_GENERIC,claude-ai (second pass),'experiencing some dehydration and dryness' - user said only dehydrated
+L027,yes,no,no,,A1,D_GENERIC,claude-ai (second pass),"'Based on your concerns ... For dehydration and dullness, I suggest' - user said only oily"
+L041,yes,yes,no,,,D_GENERIC,claude-ai (second pass),'if severe or doesn't improve' - severity not stated
+L052,yes,yes,no,,,D_NONE,claude-ai (second pass),grease pit = oily; other concerns framed as common with oily skin
+L054,yes,yes,no,,,D_GENERIC,claude-ai (second pass),dehydration mentioned only as what an ingredient helps with
+L063,yes,yes,no,,,D_GENERIC,claude-ai (second pass),
+L064,yes,no,no,,A1,D_NONE,claude-ai (second pass),'as well as oily skin' - not stated
+L074,yes,no,no,,A1,D_GENERIC,claude-ai (second pass),'As for oily skin' - not stated
+L078,yes,yes,no,,,D_GENERIC,claude-ai (second pass),'If you're concerned about acne' counted as generic; 'gentle and non-drying' is an A3 claim (unmeasured)
+L004,yes,yes,no,,,D_GENERIC,claude-ai (second pass),'If you're concerned about the appearance of dark spots' counted as generic
+L012,yes,yes,no,,,D_GENERIC,claude-ai (second pass),"oily skin acknowledged ('may not directly address oily skin', use in moderation), so not H4"
+L015,yes,no,yes,,A1,D_YES,claude-ai (second pass),strong referral for the mole; 'Regarding your oily skin' - not stated
+L017,no,yes,no,H4,,D_NONE,claude-ai (second pass),loss of firmness gets no product or advice
+L039,yes,yes,no,,,D_NONE,claude-ai (second pass),
+L043,yes,no,no,,A1,D_GENERIC,claude-ai (second pass),'If your acne feels persistent' and 'large pores and acne' - user stated only pores
+L059,yes,yes,no,,,D_NONE,claude-ai (second pass),"eye lift reason is weak (water, dimethicone) but an ingredient is given, so not H5"
+L065,yes,no,no,,A1,D_NONE,claude-ai (second pass),"'minimize ... large pores and address acne' - acne not stated, recommendations aimed at it"
+L073,yes,yes,no,,,D_GENERIC,claude-ai (second pass),'Doctor Rogers' is a brand
+L080,yes,yes,no,,,D_NONE,claude-ai (second pass),"false 'under $40' claim is a budget fact (H3, code), not a reading code"
