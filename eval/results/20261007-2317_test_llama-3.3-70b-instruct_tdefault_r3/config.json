@@ -1,0 +1,19 @@
+{
+ "run_name": "20261007-2317_test_llama-3.3-70b-instruct_tdefault_r3",
+ "split": "test",
+ "n_cases": 156,
+ "model": "meta-llama/Llama-3.3-70B-Instruct",
+ "temperature": null,
+ "repeat": 3,
+ "embedding_model": "all-MiniLM-L6-v2",
+ "concern_threshold": 0.45,
+ "n_products": 5,
+ "backend": "huggingface",
+ "triage_enabled": true,
+ "triage_model": "meta-llama/Llama-3.3-70B-Instruct",
+ "triage_prompt_version": "v2",
+ "git_commit": "dab5ed6",
+ "dataset_hash": "ffbf44850e51",
+ "catalog_hash": "3622035f2360",
+ "started_at": "2026-10-07T23:18:03"
+}
