@@ -1,0 +1,107 @@
+product_id,name,price,is_skincare,product_type,area,form,concerns,confidence,notes
+12696151,Christophe Robin Luscious Curl Cleansing Balm with Kokum Butter 250ml,43.0,0,haircare,hair,cleanser,,high,curl cleansing balm for hair
+12902323,R+Co TELEVISION Perfect Hair Shampoo 33.8 oz,114.0,0,haircare,hair,shampoo,,high,
+15512135,Colorescience Total Lash Mascara 8ml,59.0,0,makeup,eye,mascara,,high,
+13441436,Exclusive TriPollar Prep Gel Duo,98.0,0,device_accessory,face,gel,,high,conductive prep gel for a radio-frequency device
+14645944,PCA SKIN Micro Peel At-Home Kit,140.0,1,skincare,face,peel,texture;dullness;hyperpigmentation,medium,at-home peel kit
+10360329,Alterna CAVIAR Anti-Aging Replenishing Moisture Conditioner 8.5 oz,37.0,0,haircare,hair,conditioner,,high,"""anti-aging"" refers to hair"
+12540840,NEOM Focus the Mind Essential Oil Blend 0.3 fl. oz,24.0,0,fragrance,none,essential oil,,high,aromatherapy blend
+11486957,Paula's Choice CLEAR Pore Normalizing Cleanser (6 fl. oz.),22.0,1,skincare,face,cleanser,acne;blackheads;large pores;oily skin,high,0.5% salicylic acid
+14869207,Masktini Intensive Restorative Crème - Hush Money 50ml,84.0,1,skincare,face,moisturizer,dryness;dehydration,medium,niacinamide + aloe restorative cream
+15061315,Estée Lauder Double Wear Smooth and Blur Primer 40ml,45.0,0,makeup,face,primer,,high,
+15463720,Alterna CAVIAR Anti-Aging Replenishing Moisture Hair Oil 50ml,40.0,0,haircare,hair,oil,,high,
+14855092,Caswell-Massey Lilac Eau de Toilette Discovery 0.25 fl. oz,30.0,0,fragrance,none,perfume,,high,
+12901340,ClarityRx Rehab Mediterranean Detoxifying Mud Mask (1.7 oz.),41.0,1,skincare,face,mask,oily skin;large pores;blackheads,medium,clay/mud mask
+11264625,Illamasqua Skin Base Foundation 1 fl. oz.,37.0,0,makeup,face,foundation,,high,
+12226489,ESPA Energising Body Oil 3.3 fl. oz.,70.0,1,skincare,body,oil,dryness,medium,body oil
+14235222,Chantecaille 24K Gold Energizing Face Cream 50ml,445.0,1,skincare,face,moisturizer,dryness;dehydration,medium,
+11289620,SkinCeuticals Hydrating B5 Mask (2.5 fl. oz.),70.0,1,skincare,face,mask,dehydration;dryness,high,hyaluronic acid + B5
+12902951,dpHUE Blonding Brush,28.0,0,haircare,hair,tool,,high,hair-lightening brush
+14020614,Perricone MD High Potency Hyaluronic Intensive Hydrating Mask,69.0,1,skincare,face,mask,dehydration;dryness,high,hyaluronic hydrating mask
+14215551,SkinMedica Even and Correct Advanced Brightening Treatment 2 oz,133.5,1,skincare,face,serum,hyperpigmentation;dullness,high,tranexamic acid + niacinamide
+10524496,this works Perfect Hands Intense Moisture (75ml),29.0,1,skincare,hand,moisturizer,dryness,high,hand cream
+11837067,PCA SKIN CE Advanced with Hexylresorcinol and Silymarin (1 fl. oz.),130.0,1,skincare,face,serum,hyperpigmentation;dullness;aging,high,vitamin C + hexylresorcinol
+11582931,Sachajuan Curl Shampoo 8.4 oz,33.0,0,haircare,hair,shampoo,,high,
+12901333,ClarityRx Get Clean Crushed Bamboo Exfoliator (1.7 oz.),37.0,1,skincare,face,exfoliant,texture;dullness,high,physical exfoliator
+11271963,Briogeo Curl Charisma™ Rice Amino + Avocado Hydrating Shampoo 8 oz,28.0,0,haircare,hair,shampoo,,high,
+13663086,StriVectin Advanced Retinol Daily Repair Face Moisturizer Broad Spectrum SPF30 50ml,99.0,1,skincare,face,moisturizer,aging;texture,high,retinol moisturizer with SPF 30
+11370322,Eminence Organic Skin Care Stone Crop Gel Wash 4.2 fl. oz,48.0,1,skincare,face,cleanser,dullness,low,gentle gel cleanser; brightening extracts
+12696146,Christophe Robin Purifying Mask with Thermal Mud 250ml,49.0,0,haircare,hair,mask,,high,scalp/hair purifying mask
+13882823,Rejuvi 't' Bio Firming Gel (3.88 oz.),52.0,1,skincare,face,gel,firmness;aging,medium,DMAE firming gel
+11912265,Glo Skin Beauty Under Eye Concealer (0.11 oz.),35.0,0,makeup,eye,concealer,,high,
+12526895,VIRTUE Texturizing Spray Travel Size 65g,20.0,0,haircare,hair,spray,,high,
+15648702,Chantecaille Silver Willow Eye Duet 2.5g (Various Shades),65.0,0,makeup,eye,eyeshadow,,high,
+14512017,jane iredale PureBronze Shimmer Bronzer Refill - Peaches & Cream 0.9g,48.0,0,makeup,face,bronzer,,high,
+15415609,Estée Lauder Revitalizing Supreme+ Night Power Bounce Crème Moisturiser 50ml,135.0,1,skincare,face,moisturizer,aging;firmness;dryness,high,night cream
+14220123,Dermalogica Active Moist Moisturizer 5.1 oz,98.0,1,skincare,face,moisturizer,dehydration;oily skin,medium,oil-free moisturizer
+14242445,By Terry Hyaluronic Lip Liner (Various Shades),28.0,0,makeup,lip,lip liner,,high,
+14764453,Sisley Paris Phyto-Blanc Le Concentre Pure Bright Activating Serum 20ml,460.0,1,skincare,face,serum,hyperpigmentation;dullness,high,niacinamide + hexylresorcinol brightening serum
+15395313,Yon-Ka Paris Skincare Toner for Normal to Oily Skin 200ml,55.0,1,skincare,face,toner,oily skin;large pores,medium,toner for normal to oily skin
+11434924,Dermalogica Stress Positive Eye Lift (0.85 oz.),76.0,1,skincare,eye,eye cream,dark circles;firmness,medium,eye lift / de-puffing
+13754693,Indie Lee Retinol Alternative Cream Refill 45ml,62.0,1,skincare,face,moisturizer,aging;firmness,medium,retinol alternative
+12905677,RMS Beauty Daily Lip Balm (0.1 oz.),25.0,1,skincare,lip,balm,dryness,high,lip balm
+13798735,Oribe Côte d’Azur Restorative Body Crème 10.1 oz,65.0,1,skincare,body,moisturizer,dryness,high,body cream
+11370452,Eminence Organic Skin Care Hibiscus Ultra Lift Neck Cream 1.7 fl. oz,98.0,1,skincare,face,moisturizer,firmness;aging,medium,neck cream
+13482936,NEOM Perfect Nights Sleep Essential Oil Blend 1 fl. oz,48.0,0,fragrance,none,essential oil,,high,aromatherapy blend
+10925276,Moroccanoil Volumizing Mousse 8.5 oz,32.0,0,haircare,hair,mousse,,high,
+12901687,One Love Organics Vitamin C Body Polish (6 oz.),48.0,1,skincare,body,exfoliant,texture;dullness,high,body polish
+12908501,Grow Gorgeous Scalp Care Scalp Detox Scrub 200ml,30.0,0,haircare,scalp,exfoliant,,high,scalp scrub
+15466502,Glo Skin Beauty Hydrated Canvas Firming Duo (Worth $124),75.0,1,skincare,face,set,dehydration;firmness,medium,hydrating + firming duo
+12526874,VIRTUE Refresh Dry Shampoo (1.8 oz.),18.0,0,haircare,hair,dry shampoo,,high,
+12055419,Kevyn Aucoin The Neo-Bronzer (0.2 oz.),40.0,0,makeup,face,bronzer,,high,
+14925194,ClarityRx Take It Easy Calming Serum 15ml,48.94,1,skincare,face,serum,redness;dehydration,high,calming serum
+13175647,Glytone Age Defying C+ Antioxidant Serum 1 fl. oz.,98.0,1,skincare,face,serum,aging;hyperpigmentation;dullness,high,vitamin C serum
+15245512,Augustinus Bader The Serum 15ml,195.0,1,skincare,face,serum,aging;firmness,medium,
+11287898,iS Clinical Extreme Protect SPF 30 (3.5 oz.),80.0,1,sunscreen,face,sunscreen,,high,sun protection; no treatment concern
+12918861,Rejuvi 'q' Flavonoid Complex (1 oz.),65.0,1,skincare,face,serum,redness;dark circles,medium,arnica + vitamin K
+15510189,EltaMD UV Sport + UV Clear Untinted Duo,86.0,1,sunscreen,face,sunscreen,,high,sunscreen duo
+13910105,NUDESTIX Tinted Blur Sculpting Stick 6.2g (Various Shades),32.0,0,makeup,face,tinted stick,,high,
+10524481,this works Deep Sleep Bath Soak (7 oz.),37.0,0,bath,body,bath soak,,high,
+11370875,VivierSkin LEXXEL (1.6 fl. oz.),83.0,1,skincare,face,moisturizer,,low,not enough information to assign concerns
+15468151,"GRANDE Cosmetics Grande Peace, Love, & Grande (Worth $166)",95.0,0,makeup,eye,lash serum set,,high,lash/brow products
+14662431,Sisley Paris Purifying Re-Balancing Lotion With Tropical Resins 125ml,115.0,1,skincare,face,toner,oily skin;large pores;acne,high,salicylic acid lotion
+14226753,Miriam Quevedo Sublime Gold Shampoo 250ml,80.0,0,haircare,hair,shampoo,,high,
+14216239,Supergoop! Daily Dose Bioretinol and Mineral SPF 40 1 fl. oz,48.0,1,sunscreen,face,sunscreen,aging,low,mineral SPF 40 with bioretinol
+15366246,RMS Beauty Hydra Setting Powder 10g (Various Shades),42.0,0,makeup,face,setting powder,,high,
+12902295,miriam quevedo Extreme Caviar Shampoo For Color Treated Hair (250 ml.),45.0,0,haircare,hair,shampoo,,high,
+15430080,Oribe Valley of Flowers Nourishing Hand Crème 100ml,52.0,1,skincare,hand,moisturizer,dryness,high,hand cream
+11709479,Bioderma Sensibio Eye Contour (0.5 oz.),21.99,1,skincare,eye,eye cream,dark circles,medium,eye contour for sensitive skin
+11289086,PCA SKIN Intensive Brightening Treatment 0.5 Pure Retinol Night (1 oz.),118.0,1,skincare,face,treatment,hyperpigmentation;aging;texture,high,retinol + niacinamide
+13534987,NUDESTIX Nudescreen Daily Mineral Veil SPF30 50ml (Various Shades),36.0,1,sunscreen,face,sunscreen,,high,mineral SPF 30
+14897389,Doctor Rogers Night Repair Treatment 1 fl. oz,98.0,1,skincare,face,treatment,texture;dullness,high,glycolic acid night treatment
+12902776,MDSolarSciences Tinted Solar Stick SPF 40 (0.6 oz.),24.0,1,sunscreen,face,sunscreen,,high,tinted SPF stick
+15449270,Miriam Quevedo Black Baccara Hair Multiplying Routine 250ml,115.0,0,haircare,hair,set,,high,
+15081764,AGENT NATEUR Holi (Sun) SPF 50 Dewy Tinted Skin Drops 30ml (Various Shades),58.0,1,sunscreen,face,sunscreen,,high,tinted SPF 50 drops
+13881803,jane iredale Smooth Affair Mattifying Face Primer 50ml,55.0,0,makeup,face,primer,,high,mattifying makeup primer
+11220951,Sachajuan Silver Shampoo 8.4 oz,31.0,0,haircare,hair,shampoo,,high,
+15062869,RMS Beauty Kakadu Beauty Oil 30ml,64.0,1,skincare,face,oil,dryness;dullness,high,face oil
+15418357,COOLA Clear Skin Oil-Free Moisturiser SPF 30 32ml,48.0,1,skincare,face,moisturizer,oily skin,medium,oil-free moisturizer with SPF 30
+14016854,VI Derm Dark Spot Lifting Serum with 5% Tranexamic Acid 50ml,130.0,1,skincare,face,serum,hyperpigmentation,high,5% tranexamic acid
+11287441,Epionce Enriched Body Cream (8 oz.),42.0,1,skincare,body,moisturizer,dryness,high,body cream
+14979647,Estée Lauder Perfectionist Pro Rapid Brightening Treatment Ferment³+ Vitamin C 30ml,95.0,1,skincare,face,serum,dullness;hyperpigmentation,high,vitamin C brightening
+10302720,Philip Kingsley No Scent No Colour Gentle Conditioner (6.67 fl. oz.),100.0,0,haircare,hair,conditioner,,high,
+12902815,iS Clinical SHEALD Recovery Balm (0.5 oz.),30.0,1,skincare,face,balm,dryness;redness,medium,barrier recovery balm
+11291410,ARCONA Glow and Go Duo (2 piece - $41 Value),24.0,1,skincare,face,set,dullness,medium,toner + glow duo
+14866367,Estée Lauder Advanced Night Repair Rescue Solution Serum with 15% Bifidus Ferment 20ml,82.0,1,skincare,face,serum,redness;dehydration,medium,soothing rescue serum
+12642445,Christophe Robin Night Recovery Cream with White Lotus Flower 150ml,35.0,0,haircare,hair,leave-in,,high,overnight hair cream
+14678756,Valmont Face Exfoliant 50ml,110.0,1,skincare,face,exfoliant,texture;dullness,high,
+12902639,R+Co Two-Way Mirror Smoothing Oil 2 oz,37.0,0,haircare,hair,oil,,high,
+11296433,Replenix Gly-Sal 10-2 Clarifying Pads (60 count),36.5,1,skincare,face,pads,acne;blackheads;oily skin;texture,high,2% salicylic + glycolic
+13311528,KYPRIS Clearing Serum Balance & Soothe Facial Serum 47ml,90.0,1,skincare,face,serum,acne;redness;oily skin,medium,zinc PCA clearing serum
+13697748,Colorescience Sunforgettable Total Protection Brush On Shield Glow SPF50 0.96ml,69.0,1,sunscreen,face,sunscreen,,high,mineral powder SPF 50
+15327207,DHC Lx-ME Brightening Lotion 180ml,19.0,1,skincare,face,toner,hyperpigmentation;dullness,high,tranexamic acid lotion
+15244557,Philip B Peppermint Avocado Conditioner 178ml,42.0,0,haircare,hair,conditioner,,high,
+11287247,DermaQuest Nourishing Peptide Cream (2 oz.),102.0,1,skincare,face,moisturizer,aging;firmness;dryness,medium,peptide cream
+15508780,Dermalogica Retinol Renewal Gift Set ($186 Value),129.0,1,skincare,face,set,aging;texture,high,retinol set
+11307158,By Terry Ombre Blackstar Color-Fix Cream Shadow (1.64 g.),38.0,0,makeup,eye,eyeshadow,,high,
+14303621,EVOLVh InstaVolume Mousse 1.7 fl. oz (Worth $11.00),11.0,0,haircare,hair,mousse,,high,
+13350394,Anastasia Beverly Hills Satin Lipstick 3g (Various Shades),26.0,0,makeup,lip,lipstick,,high,
+11287832,HydroPeptide Power Serum Line Lifting Transformation (1 fl. oz.),154.0,1,skincare,face,serum,aging;firmness,high,peptide serum
+11329109,Natura Bissé C+C Vitamin Cream (2.5 oz.),148.0,1,skincare,face,moisturizer,dullness;aging,medium,vitamin C cream
+13441438,Exclusive NEOSTRATA Anti-Aging Firming Duo,188.0,1,skincare,face,set,aging;firmness,high,
+12905883,R+Co BRIGHT SHADOWS Root Touch-Up Spray 1.5 oz,19.0,0,haircare,hair,spray,,high,root touch-up
+11752239,Koh Gen Do Maifanshi Moisture Fit Concealer (7 g.),69.0,0,makeup,face,concealer,,high,
+11207519,DHC CoQ10 Face Milk (3.3 fl. oz.),42.0,1,skincare,face,moisturizer,aging;dryness,medium,CoQ10 face milk
+12759324,Moroccanoil All in One Leave-in Conditioner 5.4 oz,32.0,0,haircare,hair,leave-in,,high,
+12635442,Christophe Robin Shade Variation Mask - Warm Chestnut 250 ml,53.0,0,haircare,hair,mask,,high,hair color mask
+13175660,Dermstore Exclusive Black Baccara Set (Worth $125.00),95.0,0,haircare,hair,set,,high,Miriam Quevedo Black Baccara hair set
