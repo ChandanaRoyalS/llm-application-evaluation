@@ -68,14 +68,19 @@ def fake_llm(monkeypatch):
 
     class Fake:
         reply = '{"recommended_products": [1], "response": "Try the Clear Gel."}'
+        route = "cosmetic"          # what the triage call returns
+        triage_raw = None           # set to override the raw triage text
         fail = False
         calls = []
 
     def chat(model, messages, max_tokens=400, temperature=None):
-        Fake.calls.append({"model": model, "messages": messages})
+        is_triage = messages[0]["content"].startswith("You route messages")
+        Fake.calls.append({"model": model, "messages": messages, "triage": is_triage})
         if Fake.fail:
             raise llm.LLMError("simulated outage")
-        return {"text": Fake.reply, "model": model, "prompt_tokens": 100,
+        text = (Fake.triage_raw or f'{{"route": "{Fake.route}", "reason": "test"}}') \
+            if is_triage else Fake.reply
+        return {"text": text, "model": model, "prompt_tokens": 100,
                 "completion_tokens": 20, "latency_ms": 5, "cost_usd": None}
 
     Fake.calls = []

@@ -62,7 +62,8 @@ def main(argv=None):
     model = args.model or pcfg.DEFAULT_TEXT_MODEL
     slug = model.split("/")[-1].lower()
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
-    run_name = args.run_name or f"{stamp}_{args.split}_{slug}_t{args.temperature:g}"
+    tag = "" if pcfg.TRIAGE_ENABLED else "_notriage"
+    run_name = args.run_name or f"{stamp}_{args.split}_{slug}_t{args.temperature:g}{tag}"
     run_dir = os.path.join(HERE, "results", run_name)
     os.makedirs(run_dir, exist_ok=True)
 
@@ -83,6 +84,8 @@ def main(argv=None):
             "temperature": args.temperature, "embedding_model": pcfg.EMBEDDING_MODEL,
             "concern_threshold": pcfg.CONCERN_THRESHOLD, "n_products": pcfg.N_PRODUCTS,
             "backend": "huggingface" if pcfg.USE_HF else "databricks",
+            "triage_enabled": pcfg.TRIAGE_ENABLED,
+            "triage_model": (pcfg.TRIAGE_MODEL or model) if pcfg.TRIAGE_ENABLED else None,
             "git_commit": git_commit(),
             "dataset_hash": file_hash(os.path.join(HERE, "datasets", f"{args.split}.jsonl")),
             "catalog_hash": file_hash(os.path.join(ROOT, "app", "app_data.json")),

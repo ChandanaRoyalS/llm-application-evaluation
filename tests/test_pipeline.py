@@ -31,14 +31,44 @@ def test_happy_path_trace(loaded_catalog, fake_llm):
     assert trace["recommended_ids"] == ["1"]
     assert trace["parse_ok"] is True
     assert trace["answer"] == "Try the Clear Gel."
-    assert trace["prompt_tokens"] == 100 and trace["total_latency_ms"] is not None
+    assert trace["prompt_tokens"] == 200 and trace["total_latency_ms"] is not None  # triage + answer
 
 
 def test_greeting_does_not_recommend(loaded_catalog, fake_llm):
+    fake_llm.route = "off_topic"
     trace = core.run_pipeline("hello there")
+    assert trace["status"] == "off_topic"
+    assert trace["retrieved_product_ids"] == [] and trace["recommended_ids"] == []
+    assert [c["triage"] for c in fake_llm.calls] == [True]   # no answer call wasted
+
+
+def test_greeting_without_triage_still_does_not_recommend(loaded_catalog, fake_llm):
+    trace = core.run_pipeline("hello there", use_triage=False)
     assert trace["status"] == "no_concern"
-    assert trace["retrieved_product_ids"] == []
-    assert fake_llm.calls == []          # no model call wasted
+    assert fake_llm.calls == []
+
+
+def test_medical_route_escalates_without_products(loaded_catalog, fake_llm):
+    fake_llm.route = "medical"
+    trace = core.run_pipeline("my mole is bleeding, which serum for dark spots?")
+    assert trace["status"] == "escalated"
+    assert trace["recommended_ids"] == [] and trace["retrieved_product_ids"] == []
+    assert "dermatologist" in trace["answer"]
+    assert trace["triage_route"] == "medical" and trace["prompt_tokens"] == 100
+
+
+def test_out_of_scope_route(loaded_catalog, fake_llm):
+    fake_llm.route = "out_of_scope"
+    trace = core.run_pipeline("recommend a dry shampoo")
+    assert trace["status"] == "out_of_scope" and trace["recommended_ids"] == []
+
+
+def test_unparseable_triage_falls_back_to_normal_flow(loaded_catalog, fake_llm):
+    fake_llm.triage_raw = "I think this is about skin."
+    trace = core.run_pipeline("my skin is oily and I get acne breakouts")
+    assert trace["triage_parse_ok"] is False and trace["triage_route"] == "cosmetic"
+    assert trace["status"] == "ok"
+    assert trace["prompt_tokens"] == 200     # triage + answer tokens are both counted
 
 
 def test_empty_input(loaded_catalog, fake_llm):
