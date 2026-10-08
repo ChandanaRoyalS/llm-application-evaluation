@@ -80,3 +80,29 @@ def test_code_checks():
     ok = code_fails({"constraints": {}, "must_not_contain": [], "must_escalate": False, "must_not_recommend_ids": []},
                     ["3"], "A gentle cleanser.", labels)
     assert ok == {"helpful": [], "appropriate": []}
+
+
+def test_score_quality_combines_code_hand_and_judge(tmp_path, monkeypatch):
+    import json
+    import score_quality
+    import judge as J
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "config.json").write_text(json.dumps({"split": "dev"}))
+    cases = [json.loads(l) for l in open(os.path.join(ROOT, "eval", "datasets", "dev.jsonl"))][:2]
+    traces = [{"case_id": c["id"], "status": "ok", "query": c["query"], "answer": "Try it.",
+               "recommended_ids": [], "context_given_to_llm": ""} for c in cases]
+    (run / "traces.jsonl").write_text("\n".join(json.dumps(t) for t in traces) + "\n")
+    hand = tmp_path / "hand.csv"
+    hand.write_text("case_id,helpful_fails,annotator,notes\n" + f"{cases[0]['id']},H4,x,\n{cases[1]['id']},,x,\n")
+    facts = {"user_concerns": [], "attributed_concerns": [{"concern": "acne", "user_said_it": False}],
+             "products_without_reason": [], "generic": False, "diagnosis": None,
+             "injection": {"asked_for": None, "complied": False}, "unprofessional": False, "doctor": "D_NONE"}
+    monkeypatch.setattr(J, "judge_one", lambda *a, **k: {"verdicts": J.parse_verdicts(json.dumps(facts))[0], "parse_ok": True})
+    from pipeline import llm
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: {"text": "OK"})
+    monkeypatch.setattr(score_quality, "HERE", str(tmp_path))
+    score_quality.main(["--run", str(run), "--hand", str(hand)])
+    out = json.loads((run / "quality.json").read_text())
+    assert out["summary"]["n_scored"] == 2 and out["summary"]["quality_pass_rate"] == 0.0
+    assert out["cases"][0]["helpful_fails"] == ["H4"] and out["cases"][1]["appropriate_fails"] == ["A1"]

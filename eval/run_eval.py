@@ -69,6 +69,8 @@ def main(argv=None):
     tag = "" if pcfg.TRIAGE_ENABLED else "_notriage"
     if pcfg.TRIAGE_ENABLED and pcfg.TRIAGE_MODEL:
         tag += "_triage-" + pcfg.TRIAGE_MODEL.split("/")[-1].lower()
+    if pcfg.PRODUCT_FILTER and not pcfg.CONCERN_HINT:
+        tag += "_pv2"
     if args.repeat:
         tag += f"_r{args.repeat}"
     run_name = args.run_name or f"{stamp}_{args.split}_{slug}_{t_tag}{tag}"
@@ -96,6 +98,8 @@ def main(argv=None):
             "triage_model": (pcfg.TRIAGE_MODEL or model) if pcfg.TRIAGE_ENABLED else None,
             "triage_prompt_version": __import__("pipeline.triage", fromlist=["x"]).PROMPT_VERSION
             if pcfg.TRIAGE_ENABLED else None,
+            "product_filter": pcfg.PRODUCT_FILTER, "concern_hint": pcfg.CONCERN_HINT,
+            "pipeline_version": "v2" if (pcfg.PRODUCT_FILTER and not pcfg.CONCERN_HINT) else "v1",
             "git_commit": git_commit(),
             "dataset_hash": file_hash(os.path.join(HERE, "datasets", f"{args.split}.jsonl")),
             "catalog_hash": file_hash(os.path.join(ROOT, "app", "app_data.json")),

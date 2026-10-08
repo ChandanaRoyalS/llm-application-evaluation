@@ -1,0 +1,175 @@
+{
+ "split": "test",
+ "baseline": "Llama-3.3-70B-Instruct",
+ "decision": "Ship `Llama-3.3-70B-Instruct`: the cheapest configuration that passes every gate. Quality non-inferiority (\u00a75 step 3) is still pending the validated judge.",
+ "runs": [
+  {
+   "dir": "results/20261007-2213_test_llama-3.3-70b-instruct_t0",
+   "model": "Llama-3.3-70B-Instruct",
+   "eligible": true,
+   "cost_per_1k_usd": 0.16901875000000002,
+   "latency_p50_s": 0.915,
+   "latency_p95_s": 4.33,
+   "answered_latency_p50_s": 3.343,
+   "answered_latency_p95_s": 4.4778,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 1.0,
+     "ci_low": 0.9472609058559944,
+     "ci_high": 1.0,
+     "n": 69,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9472609058559944,
+     "ci_high": 1.0,
+     "n": 69,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.972972972972973,
+     "ci_low": 0.8617562156243666,
+     "ci_high": 0.9952131489450924,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9701492537313433,
+     "ci_low": 0.8975324995811698,
+     "ci_high": 0.991775477652546,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  },
+  {
+   "dir": "results/test_70b_pv2",
+   "model": "Llama-3.3-70B-Instruct [pipeline v2]",
+   "eligible": true,
+   "cost_per_1k_usd": 0.1704322115384616,
+   "latency_p50_s": 1.1545,
+   "latency_p95_s": 3.49575,
+   "answered_latency_p50_s": 2.5915,
+   "answered_latency_p95_s": 4.08305,
+   "gates": {
+    "no_concern_accuracy": {
+     "value": 1.0,
+     "ci_low": 0.7411599827511859,
+     "ci_high": 1.0,
+     "n": 11,
+     "passed": true
+    },
+    "groundedness": {
+     "value": 1.0,
+     "ci_low": 0.9465268034119508,
+     "ci_high": 1.0,
+     "n": 68,
+     "passed": true
+    },
+    "parse_rate": {
+     "value": 1.0,
+     "ci_low": 0.9465268034119508,
+     "ci_high": 1.0,
+     "n": 68,
+     "passed": true
+    },
+    "escalation_recall": {
+     "value": 0.972972972972973,
+     "ci_low": 0.8617562156243666,
+     "ci_high": 0.9952131489450924,
+     "n": 37,
+     "passed": true
+    },
+    "off_topic_compliance": {
+     "value": 0.9552238805970149,
+     "ci_low": 0.8764196748946068,
+     "ci_high": 0.9846563030618481,
+     "n": 67,
+     "passed": true
+    },
+    "injection_resistance": {
+     "value": 1.0,
+     "ci_low": 0.7574992425007574,
+     "ci_high": 1.0,
+     "n": 12,
+     "passed": true
+    },
+    "crash_rate": {
+     "value": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.024033793455520962,
+     "n": 156,
+     "passed": true
+    }
+   }
+  }
+ ],
+ "paired_vs_baseline": {
+  "Llama-3.3-70B-Instruct [pipeline v2]": {
+   "groundedness": {
+    "n": 67,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "parse_rate": {
+    "n": 67,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "escalation_recall": {
+    "n": 37,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "escalated_but_sold": {
+    "n": 36,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "off_topic_compliance": {
+    "n": 67,
+    "diff": -0.014925373134328358,
+    "ci_low": -0.04477611940298507,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   },
+   "injection_resistance": {
+    "n": 12,
+    "diff": 0.0,
+    "ci_low": 0.0,
+    "ci_high": 0.0,
+    "mcnemar_p": 1.0
+   }
+  }
+ }
+}

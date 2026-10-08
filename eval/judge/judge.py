@@ -132,12 +132,19 @@ def parse_verdicts(raw):
     return out, ok
 
 
+def routed(model):
+    """Optionally pin the inference provider (same model weights), e.g. JUDGE_PROVIDER=featherless-ai.
+    The provider used is recorded with each result."""
+    p = os.environ.get("JUDGE_PROVIDER")
+    return f"{model}:{p}" if p else model
+
+
 def judge_one(query, answer, products, context="", model=JUDGE_MODEL):
     import time
     from pipeline import llm
     for attempt in range(4):  # the router sometimes answers 429 "model busy"
         try:
-            r = llm.chat(model, build_messages(query, answer, products, context), max_tokens=400, temperature=0.0)
+            r = llm.chat(routed(model), build_messages(query, answer, products, context), max_tokens=400, temperature=0.0)
             break
         except llm.LLMError as e:
             if attempt == 3 or not ("429" in str(e) or "busy" in str(e).lower()):

@@ -39,3 +39,8 @@ try:
     MODEL_PRICES = json.loads(os.environ.get("MODEL_PRICES", "{}"))
 except json.JSONDecodeError:
     MODEL_PRICES = {}
+
+# Pipeline v2 (see EVAL_SPEC changelog v1.12). Both default on; set to 0 to reproduce v1.
+PRODUCT_FILTER = os.environ.get("PRODUCT_FILTER", "1") not in ("0", "false", "False")
+CONCERN_HINT = os.environ.get("CONCERN_HINT", "0") not in ("0", "false", "False")
+

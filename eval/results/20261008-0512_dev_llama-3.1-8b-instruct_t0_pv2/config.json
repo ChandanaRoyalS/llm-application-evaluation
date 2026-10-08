@@ -1,0 +1,22 @@
+{
+ "run_name": "20261008-0512_dev_llama-3.1-8b-instruct_t0_pv2",
+ "split": "dev",
+ "n_cases": 104,
+ "model": "meta-llama/Llama-3.1-8B-Instruct",
+ "temperature": 0.0,
+ "repeat": null,
+ "embedding_model": "all-MiniLM-L6-v2",
+ "concern_threshold": 0.45,
+ "n_products": 5,
+ "backend": "huggingface",
+ "triage_enabled": true,
+ "triage_model": "meta-llama/Llama-3.1-8B-Instruct",
+ "triage_prompt_version": "v2",
+ "product_filter": true,
+ "concern_hint": false,
+ "pipeline_version": "v2",
+ "git_commit": "820ce6b",
+ "dataset_hash": "8943f97373b6",
+ "catalog_hash": "3622035f2360",
+ "started_at": "2026-10-08T05:12:30"
+}

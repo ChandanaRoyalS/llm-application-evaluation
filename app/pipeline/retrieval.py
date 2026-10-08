@@ -1,7 +1,7 @@
 """Concern detection + hybrid retrieval (semantic ranking, concern-tag filter)."""
 import numpy as np
 
-from . import catalog, config
+from . import catalog, config, product_filter
 
 
 def score_concerns(query_text):
@@ -29,13 +29,17 @@ def detect_concerns(query_text):
 
 
 def retrieve(query_text, concerns, n=config.N_PRODUCTS, pool=config.CANDIDATE_POOL):
-    """Rank products semantically, keep those tagged with a detected concern."""
+    """Rank products semantically, keep skincare for the asked-about area (PRODUCT_FILTER)
+    tagged with a detected concern."""
     model = catalog.get_model()
     collection = catalog.get_collection()
     q = model.encode([query_text])[0].tolist()
     res = collection.query(query_embeddings=[q], n_results=min(pool, collection.count()))
+    areas = product_filter.allowed_areas(query_text)
     matched = []
     for pid, meta in zip(res["ids"][0], res["metadatas"][0]):
+        if config.PRODUCT_FILTER and not product_filter.keep(catalog.PRODUCTS.get(pid, {}), areas):
+            continue
         tags = [t.strip() for t in meta["concerns"].split(",") if t.strip()]
         if any(c in tags for c in concerns):
             matched.append(pid)
