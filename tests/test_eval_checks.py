@@ -109,9 +109,10 @@ def fake_trace(case):
             "total_latency_ms": 1500, "prompt_tokens": 300, "completion_tokens": 120}
 
 
-def test_runner_and_scorer_end_to_end(tmp_path, monkeypatch):
+def _setup_runner(tmp_path, monkeypatch, trace_fn, preflight_fails=False):
     import pipeline
     import run_eval
+    from pipeline import llm
     from score import load_cases
 
     cases = load_cases("dev")
@@ -119,13 +120,23 @@ def test_runner_and_scorer_end_to_end(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "is_ready", lambda: True)
     by_query = {c["query"]: c for c in cases.values()}
     monkeypatch.setattr(pipeline, "run_pipeline",
-                        lambda q, model=None, temperature=None: fake_trace(by_query[q]))
+                        lambda q, model=None, temperature=None: trace_fn(by_query[q]))
+
+    def preflight(*a, **k):
+        if preflight_fails:
+            raise llm.LLMError("401 Invalid username or password.")
+        return {"text": "OK"}
+    monkeypatch.setattr(llm, "chat", preflight)
     monkeypatch.setattr(run_eval, "HERE", str(tmp_path))
     os.makedirs(tmp_path / "datasets")
     for s in ("dev", "test"):
         src = os.path.join(ROOT, "eval", "datasets", f"{s}.jsonl")
         (tmp_path / "datasets" / f"{s}.jsonl").write_text(open(src, encoding="utf-8").read())
+    return run_eval
 
+
+def test_runner_and_scorer_end_to_end(tmp_path, monkeypatch):
+    run_eval = _setup_runner(tmp_path, monkeypatch, fake_trace)
     run_eval.main(["--split", "dev", "--run-name", "fake"])
     run_dir = tmp_path / "results" / "fake"
     result = json.loads((run_dir / "metrics.json").read_text())
@@ -136,6 +147,30 @@ def test_runner_and_scorer_end_to_end(tmp_path, monkeypatch):
         assert v[key]["passed"], (key, v[key])
     assert v["hit_at_5"]["value"] == 1.0
     assert "# Evaluation report" in (run_dir / "report.md").read_text()
+
+
+    assert result["valid"] is True
+
+
+def test_preflight_failure_runs_nothing(tmp_path, monkeypatch):
+    run_eval = _setup_runner(tmp_path, monkeypatch, fake_trace, preflight_fails=True)
+    with pytest.raises(SystemExit, match="Preflight"):
+        run_eval.main(["--split", "dev", "--run-name", "badtoken"])
+    assert not (tmp_path / "results" / "badtoken" / "traces.jsonl").exists()
+
+
+def test_failing_model_calls_stop_the_run_and_make_it_invalid(tmp_path, monkeypatch):
+    from score import score_run
+    err = lambda case: {"status": "llm_error", "answer": "Sorry", "error": "401"}  # noqa: E731
+    run_eval = _setup_runner(tmp_path, monkeypatch, err)
+    with pytest.raises(SystemExit, match="5 model calls in a row"):
+        run_eval.main(["--split", "dev", "--run-name", "outage"])
+    run_dir = tmp_path / "results" / "outage"
+    assert sum(1 for _ in open(run_dir / "traces.jsonl")) == 5
+    res = score_run(str(run_dir))
+    # refusal-style gates would "pass" on an all-error run; the validity flag catches it
+    assert res["valid"] is False
+    assert "INVALID RUN" in (run_dir / "report.md").read_text()
 
 
 def test_test_split_is_locked():

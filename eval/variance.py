@@ -45,9 +45,14 @@ def main(argv=None):
         rows = []
         for d in dirs:
             res = score_run(d)
+            if not res.get("valid", True):
+                print(f"skipping invalid run (model calls failed): {os.path.basename(d)}", file=sys.stderr)
+                continue
             v = {x["key"]: x["value"] for x in res["verdicts"]}
             t = res["config"].get("temperature")
             rows.append(("t0" if t == 0 else f"default r{res['config'].get('repeat') or '?'}", v))
+        if not rows:
+            continue
         out.append(f"## {label} ({len(rows)} runs)\n")
         out.append("| Gate | " + " | ".join(r[0] for r in rows) + " | mean | min–max |")
         out.append("|---|" + "---|" * (len(rows) + 2))

@@ -111,7 +111,16 @@ def main(argv=None):
             done = {json.loads(line)["case_id"] for line in f if line.strip()}
 
     todo = [c for c in cases if c["id"] not in done]
+    if todo:  # preflight: fail fast on a bad token or model id instead of scoring 156 errors
+        from pipeline import llm
+        for m_id in {model, (pcfg.TRIAGE_MODEL or model)} if pcfg.TRIAGE_ENABLED else {model}:
+            try:
+                llm.chat(m_id, [{"role": "user", "content": "Reply with OK."}], max_tokens=3)
+            except llm.LLMError as e:
+                sys.exit(f"Preflight call to {m_id} failed, nothing was run: {e}\n"
+                         "Check HF_TOKEN (is it set to your real token?) and the model id.")
     print(f"Running {len(todo)} cases ({len(done)} already done) with {model}")
+    consecutive_errors = 0
     with open(traces_path, "a", encoding="utf-8") as f:
         for i, case in enumerate(todo, 1):
             try:
@@ -123,11 +132,18 @@ def main(argv=None):
             f.write(json.dumps(trace, ensure_ascii=False) + "\n")
             f.flush()
             print(f"  [{i}/{len(todo)}] {case['id']:22s} {trace.get('status')}")
+            consecutive_errors = consecutive_errors + 1 if trace.get("status") == "llm_error" else 0
+            if consecutive_errors >= 5:
+                sys.exit(f"Stopped: 5 model calls in a row failed. Fix the cause, then resume with\n"
+                         f"  --run-name {run_name}  (failed cases are kept; delete the run folder to start clean)")
             if args.sleep:
                 time.sleep(args.sleep)
 
     result = score_run(run_dir)
     gates = [v for v in result["verdicts"] if v["kind"] == "gate"]
+    if not result["valid"]:
+        e = result["metrics"]["llm_error_rate"]
+        print(f"\nINVALID RUN: {e['k']}/{e['n']} model calls failed. Delete {run_dir} and re-run.")
     print(f"\nGates passed: {sum(1 for v in gates if v['passed'])}/{len(gates)}")
     for v in result["verdicts"]:
         flag = "—   " if v["passed"] is None else ("PASS" if v["passed"] else "FAIL")
