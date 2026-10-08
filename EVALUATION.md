@@ -119,11 +119,50 @@ One test run of 70B + pipeline v2:
 
 The 85% target is **still not met**: the remaining failures are wrong product types (5, unchanged, since retrieval doesn't use the requested type yet) and invented concerns (5).
 
+## Results by component
+
+Each call returns a trace, so every component is scored separately on the same 156 test cases. Start = Llama 3.1 8B without triage; then Llama 3.3 70B with triage, pipeline v1 and v2.
+
+| Component | Metric | 8B, no triage | 70B, v1 | 70B, v2 |
+|---|---|---|---|---|
+| Concern detector | macro-F1 | 0.551 | 0.519 | 0.526 |
+| Catalog | share of products that are skincare (independent labels) | 0.575 (CI 0.48–0.67) | 0.575 | 0.575 |
+| Retrieval | hit@5 / recall@5 | 0.461 / 0.091 | 0.416 / 0.081 | 0.461 / 0.087 |
+| Retrieval | wrong-category products | 17.0% | 17.1% | **1.5%** |
+| Triage | routing accuracy | — | 92.9% | 93.5% |
+| Generation | groundedness / JSON parse | 100% / 100% | 100% / 100% | 100% / 100% |
+| Generation | over-escalation (cosmetic sent to a doctor) | 1.3% | 1.3% | 0.0% |
+| Generation | no products when some were expected | 0 | 0 | 2.2% |
+| End to end | p50 / p95 latency, answered (s) | 3.36 / 9.16 | 0.92 / 4.33 | 1.16 / 3.50 |
+
+What this shows: the concern detector and retrieval are weak and were **not** improved (macro-F1 ≈ 0.5, recall@5 < 0.1); the gains came from triage, the product filter and the prompt. The detector differs slightly between runs only because triage removes some cases before it runs. Better retrieval is the clearest next step.
+
+## Results by category
+
+Aggregate rates hide where a system fails, so every result is also broken down by the 11 test categories (start = 8B without triage, end = 70B + pipeline v2). "—" means the metric doesn't apply to that category.
+
+| Category | Test n | Escalated to a doctor (start → end) | No products, as required (start → end) | Quality pass, answered (end) |
+|---|---|---|---|---|
+| clear_single | 24 | — | — | 17/20 |
+| multi_concern | 18 | — | — | 14/16 |
+| slang_indirect | 18 | — | — | 9/10 |
+| constraint | 15 | — | 1/1 → 1/1 | **3/10** |
+| not_in_catalog | 12 | — | 9/12 → 10/12 | 2/2 |
+| off_topic | 9 | — | 9/9 → 9/9 | — |
+| hidden_red_flag | 24 | **1/24 → 23/24** | — | 0/1 |
+| clearly_medical | 12 | 1/12 → 12/12 | — | — |
+| injection | 12 | 0/1 → 1/1 | 5/5 → 5/5 | 2/2 |
+| trap | 6 | — | 0/1 → 1/1 | 4/5 |
+| edge_case | 6 | — | 2/2 → 2/2 | 2/2 |
+
+Two things stand out that the totals hide. Hidden red flags (a mole that bleeds, asked as a product question) went from 1 of 24 escalated to 23 of 24; this was the category the dataset was built to probe. Constraint requests ("a moisturiser, not a serum") pass quality only 3 times in 10, because retrieval ignores the requested product type; that is most of the gap to the 85% target.
+
 ## Mistakes the process caught
 
 Some of the most useful results were failures of the evaluation itself, caught because every number was checked against the traces:
 
 - **A run that measured nothing still "passed".** Three repeat runs were started with an unset API token: every call failed, and the scorer still passed 4 of 7 gates, because a reply that recommends nothing satisfies refusal-style gates. The runner now checks the model is reachable before starting, stops after five failed calls, and marks any run with > 5% failed calls invalid (spec v1.5).
+- **An early result too small to mean anything.** The first version of the project scored concern tagging against the 18 products that had usable ground-truth labels: precision 0.10, recall 0.28. With bootstrap intervals those are 0.03–0.18 and 0.11–0.47, wide enough that a stricter tagging rule that "made both worse" could not be distinguished from noise. That is why this evaluation uses a larger dataset, intervals on every rate and paired tests before calling any change real.
 - **Naive detectors** (doctor mentions, substring injection checks) were measured against labels and corrected or replaced rather than trusted.
 - **A judge that contradicted itself** was fixed by changing what it is asked for, not by rewording the rubric again.
 - **A hidden injection weakness** surfaced only because triage routed the same message differently between runs.
@@ -135,6 +174,10 @@ Some of the most useful results were failures of the evaluation itself, caught b
 - **Test-set reuse.** The test split was run once per configuration, but several configurations were evaluated on it over the project, so the final numbers are slightly optimistic.
 - **Not measured:** whether ingredient claims are true (needs an expert), the photo path (no labeled image set), multi-turn conversations.
 - **Remaining known failures:** one red flag still missed (*"white patches spreading on my face"*: no triage rule covers depigmentation); requests for makeup that mention skin ("foundation for oily skin") are treated as skincare; the requested product type isn't used in retrieval.
+- **Pipeline v2 changed three things at once** (no concern hint, the product filter, the injection defense) and was run on test once, as the protocol allowed. The failure codes point to which change fixed what (invented concerns fell with the hint removed, non-skincare picks with the filter), but no ablation was run, so the contribution of each change is inferred, not measured.
+- **No labeling consistency check.** The plan called for re-labeling a sample later to measure the labeler's own consistency; this wasn't done, so label noise is unquantified.
+- **Planned but not done:** a commercial model in the comparison (only open models on one router were compared), the labeled photo set, experiment tracking in MLflow (runs are tracked as committed files instead), online logging and monitoring of the live app, and an embedding-model comparison for retrieval.
+- **No automated regression gate yet.** The evaluation is run by hand; nothing blocks a pull request that would break a gate. This is the first item under *What's next* in the README.
 - **Provider drift.** Hosted models change and drop providers; the final judge run was split across two providers serving the same DeepSeek-V3.2 weights (recorded per item).
 
 ## Reproducing
@@ -150,7 +193,7 @@ python eval/judge/score_quality.py --run <run> --hand <labels.csv>
 
 | Where | What |
 |---|---|
-| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.14) of every protocol change and why |
+| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.16) of every protocol change and why |
 | [eval/datasets](eval/datasets) | cases, catalog labels, dev/test split |
 | [eval/results](eval/results) | every run: config, traces, metrics, report; `comparisons/` for model, variance and before/after reports |
 | [eval/judge](eval/judge) | checklist, code checks, judge, label set, reference labels, agreement reports, adjudication log |
