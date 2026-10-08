@@ -1,0 +1,10 @@
+{
+ "_source": "Hugging Face Inference Providers router, GET /v1/models, cheapest live provider per model",
+ "_retrieved": "2026-10-08",
+ "_unit": "USD per 1M tokens (list price; the router may serve a request from a different provider)",
+ "meta-llama/Llama-3.1-8B-Instruct": {"input": 0.02, "output": 0.05},
+ "meta-llama/Llama-3.3-70B-Instruct": {"input": 0.135, "output": 0.40},
+ "Qwen/Qwen3-235B-A22B-Instruct-2507": {"input": 0.09, "output": 0.55},
+ "google/gemma-3-27b-it": {"input": 0.08, "output": 0.16},
+ "deepseek-ai/DeepSeek-V3.2": {"input": 0.26, "output": 0.38}
+}
