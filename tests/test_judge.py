@@ -23,7 +23,7 @@ def test_parse_checklist_output():
 
 
 def test_unknown_codes_are_a_failure_not_a_guess():
-    v, ok = judge.parse_verdicts('{"helpful_fails": ["H1"], "appropriate_fails": [], "doctor": "maybe"}')
+    v, ok = judge.parse_verdicts('{"helpful_fails": ["H9"], "appropriate_fails": [], "doctor": "maybe"}')
     assert not ok
     assert v["helpful"]["verdict"] is None and v["refers_to_doctor"]["verdict"] is None
     assert v["appropriate"]["verdict"] == "yes"
@@ -71,3 +71,8 @@ def test_code_checks():
     ok = code_fails({"constraints": {}, "must_not_contain": [], "must_escalate": False, "must_not_recommend_ids": []},
                     ["3"], "A gentle cleanser.", labels)
     assert ok == {"helpful": [], "appropriate": []}
+
+
+def test_code_check_codes_are_dropped_not_failed():
+    v, ok = judge.parse_verdicts('{"helpful_fails": ["H1", "H4"], "appropriate_fails": ["A5"], "doctor": "D_NONE"}')
+    assert ok and v["helpful"]["fails"] == ["H4"] and v["appropriate"]["verdict"] == "yes"

@@ -19,11 +19,14 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "app"))
 
 JUDGE_MODEL = "deepseek-ai/DeepSeek-V3.2"
-PROMPT_VERSION = "v3"
+PROMPT_VERSION = "v4"
 CRITERIA = ("helpful", "appropriate", "refers_to_doctor")
 
 sys.path.insert(0, HERE)
-from checklist import APPROPRIATE, DOCTOR, HELPFUL, HELPFUL_NOTE, doctor_verdict, verdict_from_fails  # noqa: E402
+from checklist import (APPROPRIATE, CODE_APPROPRIATE, CODE_HELPFUL, DOCTOR, HELPFUL, HELPFUL_NOTE,  # noqa: E402
+                       UNMEASURED, doctor_verdict, verdict_from_fails)
+
+OUT_OF_SCOPE = set(CODE_HELPFUL) | set(CODE_APPROPRIATE) | set(UNMEASURED)
 
 # Prompt history (tuned on the calibration split only):
 #   v1  free-text criteria copied from the labeling guide
@@ -31,6 +34,11 @@ from checklist import APPROPRIATE, DOCTOR, HELPFUL, HELPFUL_NOTE, doctor_verdict
 #       stated to be correct (v1 marked it unhelpful on calibration items L021, L048, L060)
 #   v3  reading-only codes; the knowledge codes moved to code checks (spec v1.9). Written
 #       before any v2/v3 judge output was seen.
+#   v4  after v3 on calibration (eval/judge/agreement_v3.md): H4 no longer absorbs added
+#       concerns or budget/type; H5 passes any stated reason; A1 counts slang and the request
+#       itself as stated, excludes hypotheticals; A4 excludes declining the forced brand; the
+#       doctor rule says to compare the condition with the user's message; codes that belong to
+#       code checks are dropped instead of failing the parse (v3 failed L064, L074 that way).
 
 
 def _codes(d):
@@ -85,8 +93,10 @@ def parse_verdicts(raw):
     out = {}
     for crit, key, codes in (("helpful", "helpful_fails", HELPFUL), ("appropriate", "appropriate_fails", APPROPRIATE)):
         fails = obj.get(key)
-        if isinstance(fails, list) and all(isinstance(f, str) and f.strip().upper() in codes for f in fails):
-            fails = sorted({f.strip().upper() for f in fails})
+        if isinstance(fails, list) and all(isinstance(f, str) for f in fails):
+            fails = {f.strip().upper() for f in fails} - OUT_OF_SCOPE  # decided by code, not the judge
+        if isinstance(fails, set) and fails <= set(codes):
+            fails = sorted(fails)
             out[crit] = {"verdict": verdict_from_fails(fails), "fails": fails, "reason": reason}
         else:
             ok = False

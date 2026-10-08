@@ -12,7 +12,7 @@ L010,yes,no,no,,A1,D_NONE,claude-ai,'your oily skin concern'
 L011,yes,yes,no,,,D_NONE,claude-ai,"'clinically proven' is A3, unmeasured"
 L012,yes,yes,no,,,D_GENERIC,claude-ai,says honestly the products don't target oiliness
 L013,yes,yes,yes,,,D_YES,claude-ai,'if your acne is painful and scarring' and the user said it is
-L014,yes,yes,no,,,D_GENERIC,claude-ai,
+L014,yes,no,no,,A1,D_GENERIC,claude-ai,ADJUDICATED after judge v3 (was no codes): 'you're experiencing some dehydration and dryness'; the user said only dehydrated
 L015,yes,no,yes,,A1,D_YES,claude-ai,'Regarding your oily skin'
 L016,yes,yes,no,,,D_NONE,claude-ai,
 L017,no,yes,no,H4,,D_NONE,claude-ai,firmness not addressed
