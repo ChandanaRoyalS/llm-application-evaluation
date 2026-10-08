@@ -90,6 +90,8 @@ What happened, in order:
 | Refers to a doctor | 1.00 | 100% (only 4 real referrals) | ✅ |
 | Helpful | 0.44 (0.06–0.76) | 82% | ❌ code checks + hand labels |
 
+**Are the reference labels themselves consistent?** 20 of the 80 items (fixed seed, 10 calibration + 10 holdout) were labeled a second time, blind to the first labels. The two passes agreed on every item: all reading codes (7 invented-concern failures, 1 ignored concern) and all 20 doctor codes. With 20 items, 20/20 is consistent with true agreement as low as 84% (Wilson), and the rarer codes never came up in the sample. Both passes were made by the same AI labeler with the same checklist, so this shows the checklist is applied reproducibly, not that the labels are right ([consistency report](eval/judge/consistency.md)).
+
 ## 5. Answer quality, root cause and fix
 
 Quality was scored on every answered test case: *Helpful* (code checks + hand labels) and *Appropriate* (code checks + the validated judge); an answer passes only if both pass.
@@ -175,7 +177,7 @@ Some of the most useful results were failures of the evaluation itself, caught b
 - **Not measured:** whether ingredient claims are true (needs an expert), the photo path (no labeled image set), multi-turn conversations.
 - **Remaining known failures:** one red flag still missed (*"white patches spreading on my face"*: no triage rule covers depigmentation); requests for makeup that mention skin ("foundation for oily skin") are treated as skincare; the requested product type isn't used in retrieval.
 - **Pipeline v2 changed three things at once** (no concern hint, the product filter, the injection defense) and was run on test once, as the protocol allowed. The failure codes point to which change fixed what (invented concerns fell with the hint removed, non-skincare picks with the filter), but no ablation was run, so the contribution of each change is inferred, not measured.
-- **No labeling consistency check.** The plan called for re-labeling a sample later to measure the labeler's own consistency; this wasn't done, so label noise is unquantified.
+- **Label consistency was measured, but not independently.** 50 dataset cases were re-labeled blind from the query text alone ([report](eval/datasets/label_consistency.md)): *should recommend* agreed 50/50, *must escalate* 49/50 (κ = 0.94; the second pass would not escalate "hair falling out in clumps"), and the exact concern set 45/50 (90%). Four of the five concern disagreements are on red-flag cases (whether to also label "redness" or "dryness" in a message that needs a doctor), which the labeling guide doesn't settle, and one is the guide's optional "crepey may add firmness". The labels were not changed after the check. The re-label was on the same day, not a week later as the spec asked, and by Claude, not a second human.
 - **Planned but not done:** a commercial model in the comparison (only open models on one router were compared), the labeled photo set, experiment tracking in MLflow (runs are tracked as committed files instead), online logging and monitoring of the live app, and an embedding-model comparison for retrieval.
 - **The regression gate is small.** Every pull request runs a fixed 24-case subset of dev (`smoke.jsonl`) through the real pipeline and fails if any gate fails or the run is invalid (`.github/workflows/eval-gate.yml`). With 7 escalation and 4 injection cases it catches broken behavior, not a drop of a few points; the full dev split is still run by hand (or from the Actions tab) before a change ships. It does not score answer quality, which needs the judge and hand labels.
 - **Provider drift.** Hosted models change and drop providers; the final judge run was split across two providers serving the same DeepSeek-V3.2 weights (recorded per item).
@@ -194,7 +196,7 @@ python eval/judge/score_quality.py --run <run> --hand <labels.csv>
 
 | Where | What |
 |---|---|
-| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.17) of every protocol change and why |
+| [EVAL_SPEC.md](EVAL_SPEC.md) | metrics, thresholds, decision rule, statistics, and the changelog (v1.0–v1.18) of every protocol change and why |
 | [eval/datasets](eval/datasets) | cases, catalog labels, dev/test split |
 | [eval/results](eval/results) | every run: config, traces, metrics, report; `comparisons/` for model, variance and before/after reports |
 | [eval/judge](eval/judge) | checklist, code checks, judge, label set, reference labels, agreement reports, adjudication log |

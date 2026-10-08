@@ -230,3 +230,37 @@ def test_ci_exit_code():
     assert ci_exit_code({"valid": True, "verdicts": _verdicts(True, False)}) == 1
     assert ci_exit_code({"valid": True, "verdicts": _verdicts(True, None)}) == 1   # unmeasured gate
     assert ci_exit_code({"valid": False, "verdicts": _verdicts(True, True)}) == 1  # invalid run
+
+
+# --- label consistency checks ----------------------------------------------
+
+def test_label_consistency_sample_is_fixed_and_blind():
+    sys.path.insert(0, os.path.join(ROOT, "eval", "datasets"))
+    import label_consistency as lc
+    rows = _load("label_consistency_sample.jsonl")
+    assert rows == lc.sample(lc.load_all())                  # reproducible from the seed
+    assert len(rows) == 50 and len({r["case_id"] for r in rows}) == 50
+    assert all(set(r) == {"key", "case_id", "query"} for r in rows)  # no labels or category
+
+
+def test_judge_consistency_sample_is_fixed_and_unlabeled():
+    sys.path.insert(0, os.path.join(ROOT, "eval", "judge"))
+    import consistency
+    items = [json.loads(l) for l in open(os.path.join(ROOT, "eval", "judge", "label_set.jsonl"), encoding="utf-8")]
+    rows = [json.loads(l) for l in open(os.path.join(ROOT, "eval", "judge", "consistency_sample.jsonl"), encoding="utf-8")]
+    assert rows == consistency.sample(items)
+    assert sum(r["split"] == "holdout" for r in rows) == 10 and len(rows) == 20
+    assert not any(k.endswith("_fails") or k in ("helpful", "appropriate") for r in rows for k in r)
+
+
+def test_judge_consistency_compare_counts_only_reading_codes():
+    sys.path.insert(0, os.path.join(ROOT, "eval", "judge"))
+    import consistency
+    ref = {"L1": {"helpful_fails": "H1;H4", "appropriate_fails": "", "doctor_code": "D_NONE"},
+           "L2": {"helpful_fails": "", "appropriate_fails": "A1", "doctor_code": "D_YES"}}
+    new = {"L1": {"helpful_fails": "H4", "appropriate_fails": "", "doctor_code": "D_NONE"},   # H1 is a code check
+           "L2": {"helpful_fails": "", "appropriate_fails": "", "doctor_code": "D_YES"}}
+    res = consistency.compare(ref, new)
+    assert res["criteria"]["helpful (reading codes)"]["raw"] == 1.0
+    assert res["criteria"]["appropriate (reading codes)"]["raw"] == 0.5
+    assert [d["item_id"] for d in res["disagreements"]] == ["L2"]
