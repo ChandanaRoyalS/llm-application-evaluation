@@ -1,0 +1,15 @@
+{
+ "run_name": "20261007-2054_dev_gemma-3-27b-it_t0",
+ "split": "dev",
+ "n_cases": 104,
+ "model": "google/gemma-3-27b-it",
+ "temperature": 0.0,
+ "embedding_model": "all-MiniLM-L6-v2",
+ "concern_threshold": 0.45,
+ "n_products": 5,
+ "backend": "huggingface",
+ "git_commit": "bce430b",
+ "dataset_hash": "8943f97373b6",
+ "catalog_hash": "3622035f2360",
+ "started_at": "2026-10-07T20:54:49"
+}
