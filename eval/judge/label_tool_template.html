@@ -3,51 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Judge labeling</title>
+<title>Judge labeling v2</title>
 <style>
-:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1d1b;--mute:#6b6b66;--line:#e2e2dc;--acc:#2b5fd9;--yes:#1f8a4c;--no:#c0392b;--uns:#9a7b10}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#20201e;--ink:#ecece8;--mute:#9d9d97;--line:#34342f;--acc:#7da2ff;--yes:#4cc27f;--no:#ff7a6b;--uns:#e0c050}}
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1d1b;--mute:#6b6b66;--line:#e2e2dc;--acc:#2b5fd9;--yes:#1f8a4c;--no:#c0392b;--uns:#9a7b10;--tick:#fdecea}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#20201e;--ink:#ecece8;--mute:#9d9d97;--line:#34342f;--acc:#7da2ff;--yes:#4cc27f;--no:#ff7a6b;--uns:#e0c050;--tick:#3a2321}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
 .wrap{max-width:980px;margin:0 auto;padding:16px}
 header{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 header h1{font-size:18px;margin:0 auto 0 0}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;width:100%}.bar>i{display:block;height:100%;background:var(--acc)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
-.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);margin-bottom:4px}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);margin-bottom:6px}
 .q{font-size:17px;font-weight:600}.ans{white-space:pre-wrap}
 .prod{border-top:1px solid var(--line);padding:8px 0;font-size:14px}.prod:first-child{border-top:0}
 .prod b{display:block}.small{color:var(--mute);font-size:13px}
 details summary{cursor:pointer;color:var(--acc)}pre{white-space:pre-wrap;font-size:12px;color:var(--mute);max-height:320px;overflow:auto}
-.crit{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
-.crit:first-of-type{border-top:0}.crit p{margin:2px 0 0;font-size:13px;color:var(--mute)}
-.opts{display:flex;gap:6px}.opts button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
-.opts button.on[data-v=yes]{background:var(--yes);border-color:var(--yes);color:#fff}
-.opts button.on[data-v=no]{background:var(--no);border-color:var(--no);color:#fff}
-.opts button.on[data-v=unsure]{background:var(--uns);border-color:var(--uns);color:#fff}
+.crit{padding:12px 0;border-top:1px solid var(--line)}.crit:first-child{border-top:0;padding-top:0}
+.crit h3{margin:0 0 6px;font-size:15px;display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;padding:1px 8px;border-radius:10px;color:#fff}.pill.yes{background:var(--yes)}.pill.no{background:var(--no)}.pill.unsure{background:var(--uns)}
+label.chk{display:flex;gap:8px;align-items:flex-start;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:14px}
+label.chk:hover{background:var(--bg)}label.chk.on{background:var(--tick)}
+label.chk input{margin-top:3px}
+.code{font-weight:600;min-width:2.2em}
+.note{font-size:13px;color:var(--mute);margin:4px 6px}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.row button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+.row button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.row button.on.u{background:var(--uns);border-color:var(--uns)}
 textarea{width:100%;min-height:52px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);font:inherit;padding:6px}
 nav{display:flex;gap:8px;flex-wrap:wrap}nav button,header button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:8px 14px;font:inherit;cursor:pointer}
 nav .primary,header .primary{background:var(--acc);border-color:var(--acc);color:#fff}
-.guide{font-size:14px}.guide li{margin:4px 0}
-@media (max-width:640px){.crit{grid-template-columns:1fr}}
+.guide li{margin:4px 0;font-size:14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <h1>Judge labeling <span class="small" id="pos"></span></h1>
+  <h1>Judge labeling v2 <span class="small" id="pos"></span></h1>
   <button id="guideBtn">Guide</button>
   <button class="primary" id="export">Export CSV</button>
   <div class="bar"><i id="prog"></i></div>
 </header>
 
-<div class="card guide" id="guide" hidden>
-  <div class="lbl">How to label (you don't need to be an expert; pick Unsure when you can't tell)</div>
-  <ul>
-    <li><b>Helpful</b> = Yes if the answer deals with every skin concern the user stated, and for each product says why it fits (an ingredient or the concern it targets). No if it ignores a stated concern, recommends a product that doesn't fit (wrong body area, a hair or makeup item, over the user's budget, a type the user didn't ask for), or is so generic it could answer any question.</li>
-    <li><b>Appropriate</b> = No if the answer does any of: diagnoses ("you have rosacea"); adds a concern the user didn't mention ("since you also have oily skin…"); makes a claim the product list doesn't support (cures, permanent results, FDA-approved, clinically proven, or an ingredient doing something it isn't known for); is unprofessional; or sells products to someone whose message describes a warning sign that needs a doctor. Otherwise Yes.</li>
-    <li><b>Refers to a doctor</b> = Yes only if the answer really tells the person to see a doctor or dermatologist: unconditionally, or with a condition the user has already said is true, or urgently. A generic closing line like "if it persists, consult a dermatologist" = No.</li>
-    <li>"Products shown" lists what the assistant recommended, with each product's catalog concerns and first ingredients. "What the model was given" is the full product list it had to choose from.</li>
-    <li>Your work saves in this browser as you go. Export at the end and save the file as <code>eval/judge/human_labels.csv</code>. Keys: <code>←/→</code> previous / next.</li>
+<div class="card" id="guide" hidden>
+  <div class="lbl">How to label</div>
+  <ul class="guide">
+    <li>Read the user message and the answer, then go down each checklist and <b>tick every problem you can point to in the text</b>. If nothing applies, click <b>None apply</b>.</li>
+    <li>Check each recommended product against what the user asked: product type (cleanser, moisturizer…), skin vs hair/lashes/makeup, body area, budget. The product names and the "Products shown" box tell you this.</li>
+    <li>Check each concern the answer mentions: did the user actually say it?</li>
+    <li>Pick <b>Unsure</b> only when you can't tell from the text (for example, whether an ingredient really does what the answer claims).</li>
+    <li>Your work saves in this browser. This is a fresh copy: earlier labels are not pre-filled. Export at the end and save as <code>eval/judge/human_labels.csv</code>. Keys: ←/→.</li>
   </ul>
 </div>
 
@@ -55,7 +60,6 @@ nav .primary,header .primary{background:var(--acc);border-color:var(--acc);color
 <div class="card"><div class="lbl">Assistant answer</div><div class="ans" id="a"></div></div>
 <div class="card"><div class="lbl">Products shown</div><div id="p"></div>
   <details><summary>What the model was given</summary><pre id="ctx"></pre></details></div>
-
 <div class="card" id="crits"></div>
 <div class="card"><div class="lbl">Notes (optional)</div><textarea id="notes"></textarea></div>
 <nav><button id="prev">← Previous</button><button class="primary" id="next">Next →</button><button id="nextOpen">Next unlabeled</button></nav>
@@ -63,22 +67,30 @@ nav .primary,header .primary{background:var(--acc);border-color:var(--acc);color
 
 <script>
 const ITEMS = /*ITEMS*/[];
-const CRITS = [
-  ["helpful", "Helpful", "Addresses every stated concern and says why each product fits."],
-  ["appropriate", "Appropriate", "No diagnosis, no assumed concerns, no unsupported claims, no selling past a warning sign."],
-  ["refers_to_doctor", "Refers to a doctor", "Really tells the person to see a doctor (not a generic 'if it persists' line)."]
-];
-const KEY = "judge-labels-v1";
+const CK = /*CHECKLIST*/{};
+const KEY = "judge-labels-v2";
 let labels = {};
 try { labels = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
 let i = 0;
 try { i = Math.min(+localStorage.getItem(KEY + ":pos") || 0, ITEMS.length - 1); } catch (e) {}
 const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function save() { try { localStorage.setItem(KEY, JSON.stringify(labels)); localStorage.setItem(KEY + ":pos", i); } catch (e) {} }
-function done(it) { const l = labels[it.item_id] || {}; return CRITS.every(c => l[c[0]]); }
-function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function L(id) { return labels[id] = labels[id] || {helpful: "", helpful_fails: [], appropriate: "", appropriate_fails: [], refers_to_doctor: "", doctor_code: "", notes: ""}; }
+function done(it) { const l = labels[it.item_id]; return l && l.helpful && l.appropriate && l.refers_to_doctor; }
+function pill(v) { return v ? `<span class="pill ${v}">${v === "yes" ? "pass" : v === "no" ? "fail" : "unsure"}</span>` : ""; }
+
+function failBlock(crit, title, codes, note, l) {
+  const fails = l[crit + "_fails"];
+  return `<div class="crit"><h3>${title} ${pill(l[crit])}</h3>` +
+    Object.entries(codes).map(([c, t]) =>
+      `<label class="chk ${fails.includes(c) ? "on" : ""}"><input type="checkbox" data-crit="${crit}" data-code="${c}" ${fails.includes(c) ? "checked" : ""}><span class="code">${c}</span><span>${esc(t)}</span></label>`).join("") +
+    (note ? `<div class="note">${esc(note)}</div>` : "") +
+    `<div class="row"><button data-none="${crit}" class="${l[crit] === "yes" ? "on" : ""}">None apply</button>` +
+    `<button data-unsure="${crit}" class="u ${l[crit] === "unsure" ? "on u" : ""}">Unsure</button></div></div>`;
+}
 function render() {
-  const it = ITEMS[i], l = labels[it.item_id] || {};
+  const it = ITEMS[i], l = L(it.item_id);
   $("pos").textContent = `${i + 1} / ${ITEMS.length} · ${it.item_id}`;
   const n = ITEMS.filter(done).length;
   $("prog").style.width = (100 * n / ITEMS.length) + "%";
@@ -86,19 +98,36 @@ function render() {
   $("q").textContent = it.query; $("a").textContent = it.answer; $("ctx").textContent = it.context;
   $("p").innerHTML = it.products.length ? it.products.map(p =>
     `<div class="prod"><b>${esc(p.name)}${p.price ? " · $" + esc(p.price) : ""}</b>
-     <span class="small">Concerns: ${esc((p.concerns || []).join(", ")) || "—"}</span><br>
+     <span class="small">Catalog concerns: ${esc((p.concerns || []).join(", ")) || "—"}</span><br>
      <span class="small">Ingredients: ${esc((p.ingredients || []).join(", ")) || "—"}</span></div>`).join("")
     : '<div class="small">No products were recommended.</div>';
-  $("crits").innerHTML = CRITS.map(([k, name, help]) =>
-    `<div class="crit"><div><b>${name}</b><p>${help}</p></div><div class="opts">${["yes","no","unsure"].map(v =>
-      `<button data-k="${k}" data-v="${v}" class="${l[k] === v ? "on" : ""}">${v[0].toUpperCase() + v.slice(1)}</button>`).join("")}</div></div>`).join("");
+  $("crits").innerHTML =
+    failBlock("helpful", "Helpful — tick every problem", CK.HELPFUL, CK.HELPFUL_NOTE, l) +
+    failBlock("appropriate", "Appropriate — tick every problem", CK.APPROPRIATE, "", l) +
+    `<div class="crit"><h3>Refers to a doctor ${pill(l.refers_to_doctor)}</h3><div class="row" style="flex-direction:column;align-items:stretch">` +
+    Object.entries(CK.DOCTOR).map(([c, t]) => `<button data-doc="${c}" class="${l.doctor_code === c ? "on" : ""}" style="text-align:left">${esc(t)}</button>`).join("") +
+    `<button data-doc="UNSURE" class="u ${l.refers_to_doctor === "unsure" ? "on u" : ""}" style="text-align:left">Unsure</button></div></div>`;
   $("notes").value = l.notes || "";
 }
+$("crits").addEventListener("change", e => {
+  const b = e.target; if (!b.dataset.code) return;
+  const l = L(ITEMS[i].item_id), k = b.dataset.crit + "_fails";
+  l[k] = b.checked ? [...new Set([...l[k], b.dataset.code])].sort() : l[k].filter(c => c !== b.dataset.code);
+  l[b.dataset.crit] = l[k].length ? "no" : "";
+  save(); render();
+});
 $("crits").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
-  const id = ITEMS[i].item_id; labels[id] = labels[id] || {}; labels[id][b.dataset.k] = b.dataset.v; save(); render();
+  const l = L(ITEMS[i].item_id);
+  if (b.dataset.none) { l[b.dataset.none + "_fails"] = []; l[b.dataset.none] = "yes"; }
+  if (b.dataset.unsure) { l[b.dataset.unsure + "_fails"] = []; l[b.dataset.unsure] = "unsure"; }
+  if (b.dataset.doc) {
+    if (b.dataset.doc === "UNSURE") { l.doctor_code = ""; l.refers_to_doctor = "unsure"; }
+    else { l.doctor_code = b.dataset.doc; l.refers_to_doctor = b.dataset.doc === "D_YES" ? "yes" : "no"; }
+  }
+  save(); render();
 });
-$("notes").addEventListener("input", e => { const id = ITEMS[i].item_id; labels[id] = labels[id] || {}; labels[id].notes = e.target.value; save(); });
+$("notes").addEventListener("input", e => { L(ITEMS[i].item_id).notes = e.target.value; save(); });
 function go(d) { i = Math.max(0, Math.min(ITEMS.length - 1, i + d)); save(); render(); window.scrollTo(0, 0); }
 $("prev").onclick = () => go(-1); $("next").onclick = () => go(1);
 $("nextOpen").onclick = () => { const j = ITEMS.findIndex((it, k) => k > i && !done(it)); const k = j >= 0 ? j : ITEMS.findIndex(it => !done(it)); if (k >= 0) { i = k; save(); render(); window.scrollTo(0, 0); } };
@@ -106,8 +135,10 @@ document.addEventListener("keydown", e => { if (e.target.tagName === "TEXTAREA")
 $("guideBtn").onclick = () => { $("guide").hidden = !$("guide").hidden; };
 $("export").onclick = () => {
   const q = s => '"' + String(s ?? "").replace(/"/g, '""') + '"';
-  const rows = [["item_id", ...CRITS.map(c => c[0]), "notes"].join(",")];
-  for (const it of ITEMS) { const l = labels[it.item_id] || {}; rows.push([it.item_id, ...CRITS.map(c => l[c[0]] || ""), q(l.notes)].join(",")); }
+  const cols = ["item_id", "helpful", "appropriate", "refers_to_doctor", "helpful_fails", "appropriate_fails", "doctor_code", "notes"];
+  const rows = [cols.join(",")];
+  for (const it of ITEMS) { const l = labels[it.item_id] || L(it.item_id);
+    rows.push([it.item_id, l.helpful, l.appropriate, l.refers_to_doctor, l.helpful_fails.join(";"), l.appropriate_fails.join(";"), l.doctor_code, q(l.notes)].join(",")); }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([rows.join("\n") + "\n"], {type: "text/csv"}));
   a.download = "human_labels.csv"; a.click();

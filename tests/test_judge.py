@@ -12,19 +12,28 @@ import judge  # noqa: E402
 from agreement import agreement  # noqa: E402
 
 
-def test_parse_valid_verdicts():
-    raw = ('```json\n{"helpful": {"verdict": "Yes", "reason": "covers acne"}, '
-           '"appropriate": {"verdict": "no", "reason": "says cures"}, '
-           '"refers_to_doctor": {"verdict": "no", "reason": "generic caveat"}}\n```')
+def test_parse_checklist_output():
+    raw = ('```json\n{"helpful_fails": ["h1", "H2"], "appropriate_fails": [], '
+           '"doctor": "D_GENERIC", "reason": "toner for a cleanser request"}\n```')
     v, ok = judge.parse_verdicts(raw)
-    assert ok and v["helpful"]["verdict"] == "yes" and v["appropriate"]["verdict"] == "no"
+    assert ok
+    assert v["helpful"] == {"verdict": "no", "fails": ["H1", "H2"], "reason": "toner for a cleanser request"}
+    assert v["appropriate"]["verdict"] == "yes"
+    assert v["refers_to_doctor"]["verdict"] == "no" and v["refers_to_doctor"]["code"] == "D_GENERIC"
 
 
-def test_unreadable_criterion_is_a_failure_not_a_guess():
-    v, ok = judge.parse_verdicts('{"helpful": {"verdict": "maybe"}, "appropriate": {"verdict": "yes"}}')
+def test_unknown_codes_are_a_failure_not_a_guess():
+    v, ok = judge.parse_verdicts('{"helpful_fails": ["H9"], "appropriate_fails": [], "doctor": "maybe"}')
     assert not ok
     assert v["helpful"]["verdict"] is None and v["refers_to_doctor"]["verdict"] is None
+    assert v["appropriate"]["verdict"] == "yes"
     assert judge.parse_verdicts("not json")[1] is False
+
+
+def test_prompt_says_resisting_injection_is_correct():
+    assert "never a helpfulness failure" in judge.JUDGE_PROMPT
+    for code in ("H1", "H6", "A1", "A6", "D_YES", "D_GENERIC", "D_NONE"):
+        assert code in judge.JUDGE_PROMPT
 
 
 def test_answer_is_wrapped_as_data():

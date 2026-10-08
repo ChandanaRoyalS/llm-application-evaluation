@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
 from checks.stats import cohens_kappa  # noqa: E402
+from checklist import APPROPRIATE, HELPFUL  # noqa: E402
 from judge import CRITERIA, JUDGE_MODEL, run_path  # noqa: E402
 
 KAPPA_MIN = 0.60
@@ -81,6 +82,16 @@ def main(argv=None):
             usable = ("yes" if s["kappa"] >= KAPPA_MIN else "no") if split == "holdout" else "—"
             out.append(f"| {split} | {c} | {s['n']} | {s['kappa']:.2f}{ci} | {100 * s['raw']:.0f}% | {s['yn']} | {s['ny']} "
                        f"| {s['excluded_unsure']} / {s['excluded_judge']} | {usable} |")
+    codes = ["\n## Checklist codes (counts; which specific failures each side found)\n",
+             "| Split | Code | Human ticked | Judge ticked | Both |", "|---|---|---|---|---|"]
+    for split in ("calibration", "holdout"):
+        ids = [i for i, r in judged.items() if r["split"] == split and i in human]
+        for code in list(HELPFUL) + list(APPROPRIATE):
+            crit = "helpful" if code.startswith("H") else "appropriate"
+            hs = {i for i in ids if code in (human[i].get(f"{crit}_fails") or "").split(";")}
+            js = {i for i in ids if code in (judged[i]["verdicts"][crit].get("fails") or [])}
+            if hs or js:
+                codes.append(f"| {split} | {code} | {len(hs)} | {len(js)} | {len(hs & js)} |")
     disagree = ["\n## Disagreements (calibration only; holdout disagreements are not shown, to keep tuning blind)\n"]
     for i, r in sorted(judged.items()):
         if r["split"] != "calibration" or i not in human:
@@ -88,8 +99,13 @@ def main(argv=None):
         for c in CRITERIA:
             hv, jv = human[i][c], r["verdicts"][c]["verdict"]
             if hv in ("yes", "no") and jv in ("yes", "no") and hv != jv:
-                disagree.append(f"- **{i}** {c}: human {hv}, judge {jv} — {r['verdicts'][c]['reason']}")
-    text = "\n".join(out + disagree) + "\n"
+                extra = ""
+                if c != "refers_to_doctor":
+                    extra = f" (human codes: {human[i].get(c + '_fails') or '—'}; judge codes: {', '.join(r['verdicts'][c].get('fails') or []) or '—'})"
+                else:
+                    extra = f" (human: {human[i].get('doctor_code') or '—'}; judge: {r['verdicts'][c].get('code') or '—'})"
+                disagree.append(f"- **{i}** {c}: human {hv}, judge {jv}{extra} — {r['verdicts'][c]['reason']}")
+    text = "\n".join(out + codes + disagree) + "\n"
     base = os.path.join(HERE, f"agreement_{a.version}")
     with open(base + ".md", "w", encoding="utf-8") as f:
         f.write(text)

@@ -7,6 +7,9 @@ categories (fixed seed, so the set is reproducible). Splits them 40/40 into
 `calibration` (the judge prompt may be tuned on these) and `holdout` (judge-human
 agreement is reported on these only). Dev only: the test split is never used.
 
+If label_set.jsonl already exists, it is kept as is (the items and their split are frozen)
+and only the labeling page is rebuilt, e.g. after a checklist change.
+
 Writes
   eval/judge/label_set.jsonl   the 80 items, with the model and split (kept out of the tool)
   eval/judge/label_tool.html   a self-contained labeling page: open it in a browser,
@@ -15,6 +18,7 @@ Writes
 import json
 import os
 import random
+import sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -61,7 +65,26 @@ def pick(traces, n, rng, used_queries):
     return out
 
 
+def write_tool(items):
+    sys.path.insert(0, HERE)
+    import checklist
+    blind = [{k: it[k] for k in ("item_id", "query", "answer", "products", "context")} for it in items]
+    ck = {"HELPFUL": checklist.HELPFUL, "HELPFUL_NOTE": checklist.HELPFUL_NOTE,
+          "APPROPRIATE": checklist.APPROPRIATE, "DOCTOR": checklist.DOCTOR}
+    page = open(os.path.join(HERE, "label_tool_template.html"), encoding="utf-8").read()
+    page = page.replace("/*ITEMS*/[]", json.dumps(blind, ensure_ascii=False).replace("</", "<\\/"))
+    page = page.replace("/*CHECKLIST*/{}", json.dumps(ck, ensure_ascii=False).replace("</", "<\\/"))
+    with open(os.path.join(HERE, "label_tool.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+
+
 def main():
+    existing = os.path.join(HERE, "label_set.jsonl")
+    if os.path.exists(existing):
+        items = load_jsonl(existing)
+        write_tool(items)
+        print(f"Kept the frozen {len(items)}-item label set; rebuilt eval/judge/label_tool.html")
+        return
     rng = random.Random(SEED)
     catalog = {p["product_id"]: p for p in json.load(open(os.path.join(ROOT, "app", "app_data.json"), encoding="utf-8"))}
     used = defaultdict(int)
@@ -92,11 +115,7 @@ def main():
         for it in items:
             f.write(json.dumps(it, ensure_ascii=False) + "\n")
 
-    blind = [{k: it[k] for k in ("item_id", "query", "answer", "products", "context")} for it in items]
-    page = open(os.path.join(HERE, "label_tool_template.html"), encoding="utf-8").read()
-    page = page.replace("/*ITEMS*/[]", json.dumps(blind, ensure_ascii=False).replace("</", "<\\/"))
-    with open(os.path.join(HERE, "label_tool.html"), "w", encoding="utf-8") as f:
-        f.write(page)
+    write_tool(items)
     n_split = sum(1 for it in items if it["split"] == "holdout")
     print(f"{len(items)} items ({len(items) - n_split} calibration / {n_split} holdout) -> eval/judge/label_tool.html")
 
