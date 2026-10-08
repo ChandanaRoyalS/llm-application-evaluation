@@ -86,6 +86,8 @@ def main(argv=None):
             "backend": "huggingface" if pcfg.USE_HF else "databricks",
             "triage_enabled": pcfg.TRIAGE_ENABLED,
             "triage_model": (pcfg.TRIAGE_MODEL or model) if pcfg.TRIAGE_ENABLED else None,
+            "triage_prompt_version": __import__("pipeline.triage", fromlist=["x"]).PROMPT_VERSION
+            if pcfg.TRIAGE_ENABLED else None,
             "git_commit": git_commit(),
             "dataset_hash": file_hash(os.path.join(HERE, "datasets", f"{args.split}.jsonl")),
             "catalog_hash": file_hash(os.path.join(ROOT, "app", "app_data.json")),
