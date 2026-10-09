@@ -26,7 +26,7 @@ def _get_client():
     global _hf_client, _workspace
     if config.USE_HF:
         if _hf_client is None:
-            _hf_client = OpenAI(api_key=os.environ["HF_TOKEN"],
+            _hf_client = OpenAI(api_key=config.LLM_API_KEY,
                                 base_url=config.HF_BASE_URL, timeout=60)
         return _hf_client
     # Databricks: build from the SDK's auth config (refreshes tokens automatically)

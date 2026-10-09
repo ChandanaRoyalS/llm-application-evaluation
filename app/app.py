@@ -49,6 +49,11 @@ with gr.Blocks(title="Skincare Assistant") as demo:
     gr.Markdown("# 🧴 Skincare Recommendation Assistant")
     gr.Markdown("*Cosmetic guidance only — not medical advice. For anything that "
                 "looks serious, please see a dermatologist.*")
+    from pipeline import config as _cfg
+    if _cfg.USE_HF and _cfg.LLM_PROVIDER != _cfg.EVALUATED_PROVIDER:
+        gr.Markdown(f"<sub>ℹ️ Live chat runs {_cfg.DEFAULT_TEXT_MODEL} served by {_cfg.LLM_PROVIDER}. "
+                    "The evaluation ran the same model family via Hugging Face Inference Providers, "
+                    "so live answers can differ from the recorded ones.</sub>")
 
     with gr.Tab("💬 Chat"):
         gr.ChatInterface(

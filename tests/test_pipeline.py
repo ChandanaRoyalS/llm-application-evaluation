@@ -99,3 +99,19 @@ def test_not_ready(monkeypatch):
     monkeypatch.setitem(catalog.STATE, "ready", False)
     monkeypatch.setitem(catalog.STATE, "error", None)
     assert core.run_pipeline("oily skin")["status"] == "not_ready"
+
+
+def test_llm_api_key_takes_precedence_over_hf_token(monkeypatch):
+    import importlib
+    from pipeline import config
+    monkeypatch.setenv("HF_TOKEN", "hf_x")
+    monkeypatch.setenv("LLM_API_KEY", "gsk_y")
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.groq.com/openai/v1")
+    try:
+        importlib.reload(config)
+        assert config.LLM_API_KEY == "gsk_y" and config.USE_HF
+        assert config.LLM_PROVIDER == "api.groq.com" != config.EVALUATED_PROVIDER
+    finally:
+        for k in ("HF_TOKEN", "LLM_API_KEY", "LLM_BASE_URL"):
+            monkeypatch.delenv(k, raising=False)
+        importlib.reload(config)
