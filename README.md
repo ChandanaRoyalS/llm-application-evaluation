@@ -1,8 +1,8 @@
-# Skincare AI Recommender
+# LLM Application Evaluation
 
-An AI-powered skincare recommendation chatbot, built end-to-end on Databricks — from raw, messy product data through a working RAG chatbot with an image-analysis feature, deployed as a live app on Hugging Face Spaces.
+An end-to-end evaluation of an LLM application: a skincare product recommender (retrieval over a real product catalog, LLM triage and grounded generation), deployed on Hugging Face Spaces.
 
-I built this as a portfolio project to go deeper than a typical "wrap an LLM in a chat box" demo. The interesting part isn't the chatbot — it's the data engineering underneath it: real product datasets, real cleaning problems, ingredient validation against an official regulatory registry, and a recommendation system that's grounded in actual product data instead of an LLM guessing.
+The evaluation is the point of the project: 260 hand-written test cases, a locked test split, safety gates and a model-selection rule fixed before any results, paired statistics, an LLM judge validated against reference labels before it was trusted, and a CI gate that runs the evaluation on every pull request. The app underneath was built end-to-end on Databricks, from raw, messy product data to a working chatbot.
 
 **Live app:** [huggingface.co/spaces/chandanaroyal719/skincare-chatbot](https://huggingface.co/spaces/chandanaroyal719/skincare-chatbot) — runs the evaluated configuration: Llama 3.3 70B with triage and pipeline v2
 
