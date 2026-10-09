@@ -1,7 +1,7 @@
 """Concern detection + hybrid retrieval (semantic ranking, concern-tag filter)."""
 import numpy as np
 
-from . import catalog, config, product_filter
+from . import catalog, config, constraints, product_filter
 
 
 def score_concerns(query_text):
@@ -30,19 +30,31 @@ def detect_concerns(query_text):
 
 def retrieve(query_text, concerns, n=config.N_PRODUCTS, pool=config.CANDIDATE_POOL):
     """Rank products semantically, keep skincare for the asked-about area (PRODUCT_FILTER)
-    tagged with a detected concern."""
+    of the requested type and budget (CONSTRAINT_FILTER), tagged with a detected concern."""
     model = catalog.get_model()
     collection = catalog.get_collection()
     q = model.encode([query_text])[0].tolist()
+    con = constraints.parse(query_text) if config.CONSTRAINT_FILTER else None
+    if con and constraints.active(con):
+        pool = collection.count()     # a narrow request may match only a few products: rank them all
     res = collection.query(query_embeddings=[q], n_results=min(pool, collection.count()))
     areas = product_filter.allowed_areas(query_text)
-    matched = []
+    matched, fits = [], []
     for pid, meta in zip(res["ids"][0], res["metadatas"][0]):
-        if config.PRODUCT_FILTER and not product_filter.keep(catalog.PRODUCTS.get(pid, {}), areas):
+        product = catalog.PRODUCTS.get(pid, {})
+        if config.PRODUCT_FILTER and not product_filter.keep(product, areas):
             continue
+        if con and not constraints.satisfies(product, con):
+            continue
+        fits.append(pid)
         tags = [t.strip() for t in meta["concerns"].split(",") if t.strip()]
         if any(c in tags for c in concerns):
             matched.append(pid)
         if len(matched) >= n:
             break
+    if not matched and con and constraints.active(con):
+        # The type/budget leaves few products, and the catalog's concern tags (and the
+        # concern detector) are unreliable, so an empty tag match is often a false
+        # "nothing fits". Fall back to the closest products that meet the request.
+        return fits[:config.CONSTRAINT_FALLBACK]
     return matched

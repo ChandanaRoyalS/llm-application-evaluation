@@ -101,12 +101,31 @@ def mention_grounded(term, context):
     return bool(words) and all(w in ctx_words for w in words)
 
 
+# Spec changelog v1.20: groundedness counts ingredient *claims* about products. A clause that
+# says a product lacks something ("none of these contain vitamin C") or restates the user's
+# request ("you mentioned looking for a vitamin C serum") is not a claim. Clauses are split at
+# , ; : and but/while/however, so "without parabens, and rich in vitamin C" still counts.
+CLAUSE_SPLIT = re.compile(r"[,;:]|(?<=[.!?])\s+|\b(?:but|while|however|although)\b", re.IGNORECASE)
+NEGATION = re.compile(r"\b(?:none|no|not|without|lacks?|lacking)\b|n't", re.IGNORECASE)
+USER_REQUEST = re.compile(r"\byou(?:'re| are| were)? (?:mentioned|asked|wanted|want|requested|looking|"
+                          r"(?:are|were) looking|said)\b", re.IGNORECASE)
+
+
+def claimed_mentions(answer, terms):
+    """Ingredient mentions that make a claim (see the comment above)."""
+    claimed = set()
+    for clause in CLAUSE_SPLIT.split(answer or ""):
+        if clause and not NEGATION.search(clause) and not USER_REQUEST.search(clause):
+            claimed.update(ingredient_mentions(clause, terms))
+    return sorted(claimed)
+
+
 def groundedness(trace, catalog, terms):
     """Code-only groundedness for an answered case (status == 'ok')."""
     context = trace.get("context_given_to_llm") or ""
     answer = trace.get("answer") or ""
     in_context = set(trace.get("retrieved_product_ids") or [])
-    unsupported = [t for t in ingredient_mentions(answer, terms) if not mention_grounded(t, context)]
+    unsupported = [t for t in claimed_mentions(answer, terms) if not mention_grounded(t, context)]
     ctx_low, ans_low = context.lower(), answer.lower()
     other_brands = sorted({
         catalog.app[p]["brand"] for p in catalog.app
