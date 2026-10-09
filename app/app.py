@@ -19,6 +19,7 @@ os.environ.setdefault("no_proxy", "localhost,127.0.0.1,0.0.0.0")
 import gradio as gr  # noqa: E402
 
 import pipeline  # noqa: E402
+import showcase  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("app")
@@ -34,7 +35,7 @@ def chat_fn(message, history):
     log.info("text status=%s concerns=%s products=%s latency_ms=%s",
              trace["status"], trace["detected_concerns"],
              len(trace["retrieved_product_ids"]), trace["total_latency_ms"])
-    return trace["answer"]
+    return trace["answer"] + showcase.note(trace)
 
 
 def image_fn(image_path):
@@ -56,6 +57,26 @@ with gr.Blocks(title="Skincare Assistant") as demo:
                       "I have dark spots and uneven skin tone",
                       "my skin is dry and flaky"],
         )
+
+    with gr.Tab("📊 Evaluation explorer"):
+        gr.Markdown(showcase.header())
+        with gr.Row():
+            cat_dd = gr.Dropdown([showcase.ALL] + list(showcase.CATEGORIES.values()),
+                                 value=showcase.ALL, label="Category")
+            res_dd = gr.Dropdown(showcase.RESULTS, value=showcase.RESULTS[0], label="Result")
+        first = showcase.case_choices()
+        case_dd = gr.Dropdown(first, value=first[0][1] if first else None,
+                              label="Test case (✅ passed every check · ❌ failed at least one)")
+        case_md = gr.Markdown(showcase.render_case(first[0][1]) if first else "")
+
+        def _filter(cat, res):
+            ch = showcase.case_choices(cat, res)
+            val = ch[0][1] if ch else None
+            return gr.update(choices=ch, value=val), showcase.render_case(val)
+
+        cat_dd.change(_filter, [cat_dd, res_dd], [case_dd, case_md])
+        res_dd.change(_filter, [cat_dd, res_dd], [case_dd, case_md])
+        case_dd.change(showcase.render_case, case_dd, case_md)
 
     with gr.Tab("📷 Photo analysis"):
         gr.Markdown("Upload a clear, well-lit photo of your face. "

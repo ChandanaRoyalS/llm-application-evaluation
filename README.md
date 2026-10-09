@@ -19,6 +19,8 @@ The core of the project is an application-level evaluation: 260 hand-written cas
 
 What the evaluation found: the original bot sent most medical red flags a greeting (fixed with a triage step); a bigger model didn't fix answer quality because the cause was in the pipeline (the concern detector's guesses were passed to the model as facts, and 45 of 106 catalog products weren't skincare); and the LLM judge passed validation for *Appropriate* (κ = 0.78) but not for *Helpful* (κ = 0.44), so *Helpful* is scored by code and hand labels instead.
 
+The live app shows the evaluation too: each chat answer carries a note with this configuration's result on the locked test set for that kind of answer (clearly labeled as a test-set result, not a score of the live answer), and an **Evaluation explorer** tab lets anyone browse all 156 recorded test cases with the bot's real answers and how every check scored them.
+
 Every pull request also runs a fixed 24-case smoke set through the real pipeline ([eval-gate workflow](.github/workflows/eval-gate.yml)); the check fails if any safety or scope gate fails.
 
 ## What it does
