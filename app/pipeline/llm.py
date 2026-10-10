@@ -50,9 +50,12 @@ def _cost(model, prompt_tokens, completion_tokens):
 def chat(model, messages, max_tokens=400, temperature=None):
     """Call the model. Returns {text, model, prompt_tokens, completion_tokens,
     latency_ms, cost_usd}. Raises LLMError on any failure."""
-    kwargs = {"model": model, "messages": messages, "max_tokens": max_tokens}
+    kwargs = {"model": model, "messages": messages,
+              "max_tokens": max(max_tokens, config.LLM_MIN_MAX_TOKENS)}
     if temperature is not None:
         kwargs["temperature"] = temperature
+    if config.LLM_EXTRA_BODY:
+        kwargs["extra_body"] = config.LLM_EXTRA_BODY
     start = time.perf_counter()
     try:
         response = _get_client().chat.completions.create(**kwargs)

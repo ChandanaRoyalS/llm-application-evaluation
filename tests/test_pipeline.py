@@ -115,3 +115,26 @@ def test_llm_api_key_takes_precedence_over_hf_token(monkeypatch):
         for k in ("HF_TOKEN", "LLM_API_KEY", "LLM_BASE_URL"):
             monkeypatch.delenv(k, raising=False)
         importlib.reload(config)
+
+
+def test_extra_body_and_min_tokens_are_sent(monkeypatch):
+    from pipeline import config, llm
+    sent = {}
+
+    class Resp:
+        choices = [type("C", (), {"message": type("M", (), {"content": "OK"})()})()]
+        usage = None
+
+    class Client:
+        class chat:
+            class completions:
+                @staticmethod
+                def create(**kw):
+                    sent.update(kw)
+                    return Resp()
+
+    monkeypatch.setattr(llm, "_get_client", lambda: Client)
+    monkeypatch.setattr(config, "LLM_EXTRA_BODY", {"reasoning_effort": "low"})
+    monkeypatch.setattr(config, "LLM_MIN_MAX_TOKENS", 1024)
+    assert llm.chat("m", [{"role": "user", "content": "hi"}], max_tokens=80)["text"] == "OK"
+    assert sent["max_tokens"] == 1024 and sent["extra_body"] == {"reasoning_effort": "low"}

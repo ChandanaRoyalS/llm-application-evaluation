@@ -50,10 +50,13 @@ with gr.Blocks(title="Skincare Assistant") as demo:
     gr.Markdown("*Cosmetic guidance only — not medical advice. For anything that "
                 "looks serious, please see a dermatologist.*")
     from pipeline import config as _cfg
-    if _cfg.USE_HF and _cfg.LLM_PROVIDER != _cfg.EVALUATED_PROVIDER:
-        gr.Markdown(f"<sub>ℹ️ Live chat runs {_cfg.DEFAULT_TEXT_MODEL} served by {_cfg.LLM_PROVIDER}. "
-                    "The evaluation ran the same model family via Hugging Face Inference Providers, "
-                    "so live answers can differ from the recorded ones.</sub>")
+    _evaluated = (showcase.DATA or {}).get("model", "")
+    if _cfg.USE_HF and (_cfg.LLM_PROVIDER != _cfg.EVALUATED_PROVIDER
+                        or (_evaluated and _cfg.DEFAULT_TEXT_MODEL != _evaluated)):
+        gr.Markdown(f"<sub>ℹ️ Live chat runs **{_cfg.DEFAULT_TEXT_MODEL}** served by {_cfg.LLM_PROVIDER}. "
+                    f"The evaluation (Evaluation explorer tab) was run with {_evaluated.split('/')[-1]} via "
+                    "Hugging Face Inference Providers, so live answers can differ from the recorded ones "
+                    "and the test-set numbers describe the evaluated setup.</sub>")
 
     with gr.Tab("💬 Chat"):
         gr.ChatInterface(

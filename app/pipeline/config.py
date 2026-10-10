@@ -17,6 +17,15 @@ HF_BASE_URL = os.environ.get("LLM_BASE_URL", "https://router.huggingface.co/v1")
 # Hugging Face Inference Providers.
 LLM_PROVIDER = HF_BASE_URL.split("//", 1)[-1].split("/", 1)[0]
 EVALUATED_PROVIDER = "router.huggingface.co"
+# For providers/models that need them (e.g. a reasoning model on Groq):
+#   LLM_EXTRA_BODY='{"reasoning_effort": "low"}'  extra request fields, as JSON
+#   LLM_MIN_MAX_TOKENS=1024                        raise every call's token limit to at least this,
+#                                                  since a reasoning model's thinking counts against it
+try:
+    LLM_EXTRA_BODY = json.loads(os.environ.get("LLM_EXTRA_BODY", "") or "{}")
+except json.JSONDecodeError:
+    LLM_EXTRA_BODY = {}
+LLM_MIN_MAX_TOKENS = int(os.environ.get("LLM_MIN_MAX_TOKENS", "0") or 0)
 
 if USE_HF:
     DEFAULT_TEXT_MODEL = os.environ.get("TEXT_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
