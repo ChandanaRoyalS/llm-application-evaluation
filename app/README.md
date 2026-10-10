@@ -23,6 +23,8 @@ and still runs on **Databricks Apps** unchanged.
 The default text model is **Llama 3.3 70B**, the configuration selected by the evaluation (see `EVALUATION.md` in the repo root).
 Optional overrides (Space → Settings → Variables): `TEXT_MODEL`, `VISION_MODEL`, `LLM_BASE_URL`, `TRIAGE_ENABLED`, `PRODUCT_FILTER`.
 
+**Using another OpenAI-compatible provider (e.g. Groq's free tier):** add a secret `LLM_API_KEY` with that provider's key and set the variables `LLM_BASE_URL` (e.g. `https://api.groq.com/openai/v1`) and `TEXT_MODEL` (e.g. `llama-3.3-70b-versatile`). `LLM_API_KEY` is used for model calls instead of `HF_TOKEN`. For a reasoning model (e.g. `openai/gpt-oss-120b` on Groq) also set `LLM_EXTRA_BODY` to `{"reasoning_effort": "low"}` and `LLM_MIN_MAX_TOKENS` to `1024`, so its thinking doesn't use up the answer's token limit. For Claude via Anthropic's OpenAI-compatible endpoint, use `LLM_BASE_URL=https://api.anthropic.com/v1/`, a Claude model id as `TEXT_MODEL`, and `LLM_OMIT_TEMPERATURE=1` (recent Claude models reject temperatures below 1 there). The app then shows a note that the live chat is served by a different provider than the one the evaluation used.
+
 ## Deploy to Hugging Face Spaces
 
 1. Create a Gradio Space (CPU basic hardware).

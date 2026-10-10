@@ -128,6 +128,7 @@ def main(argv=None):
             "temperature": temperature, "repeat": args.repeat, "embedding_model": pcfg.EMBEDDING_MODEL,
             "concern_threshold": pcfg.CONCERN_THRESHOLD, "n_products": pcfg.N_PRODUCTS,
             "backend": "huggingface" if pcfg.USE_HF else "databricks",
+            "llm_provider": pcfg.LLM_PROVIDER if pcfg.USE_HF else None,
             "triage_enabled": pcfg.TRIAGE_ENABLED,
             "triage_model": (pcfg.TRIAGE_MODEL or model) if pcfg.TRIAGE_ENABLED else None,
             "triage_prompt_version": __import__("pipeline.triage", fromlist=["x"]).PROMPT_VERSION

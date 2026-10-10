@@ -24,7 +24,8 @@ MSG_NO_CONCERN = (
 MSG_NO_PRODUCTS = ("I couldn't find products in our catalog for that concern. "
                    "Could you describe it a little differently?")
 MSG_LLM_ERROR = ("Sorry — I'm having trouble reaching the recommendation model right "
-                 "now. Please try again in a moment.")
+                 "now. Please try again in a moment. Meanwhile, the 📊 Evaluation explorer "
+                 "tab shows how this assistant answered 156 recorded test questions.")
 MSG_ESCALATE = (
     "🩺 Based on what's visible in your photo, I'd recommend having this looked at "
     "by a dermatologist for a proper evaluation. I'm only able to offer cosmetic "

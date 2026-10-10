@@ -26,7 +26,7 @@ def _get_client():
     global _hf_client, _workspace
     if config.USE_HF:
         if _hf_client is None:
-            _hf_client = OpenAI(api_key=os.environ["HF_TOKEN"],
+            _hf_client = OpenAI(api_key=config.LLM_API_KEY,
                                 base_url=config.HF_BASE_URL, timeout=60)
         return _hf_client
     # Databricks: build from the SDK's auth config (refreshes tokens automatically)
@@ -50,9 +50,12 @@ def _cost(model, prompt_tokens, completion_tokens):
 def chat(model, messages, max_tokens=400, temperature=None):
     """Call the model. Returns {text, model, prompt_tokens, completion_tokens,
     latency_ms, cost_usd}. Raises LLMError on any failure."""
-    kwargs = {"model": model, "messages": messages, "max_tokens": max_tokens}
-    if temperature is not None:
+    kwargs = {"model": model, "messages": messages,
+              "max_tokens": max(max_tokens, config.LLM_MIN_MAX_TOKENS)}
+    if temperature is not None and not config.LLM_OMIT_TEMPERATURE:
         kwargs["temperature"] = temperature
+    if config.LLM_EXTRA_BODY:
+        kwargs["extra_body"] = config.LLM_EXTRA_BODY
     start = time.perf_counter()
     try:
         response = _get_client().chat.completions.create(**kwargs)
