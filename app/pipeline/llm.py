@@ -52,7 +52,7 @@ def chat(model, messages, max_tokens=400, temperature=None):
     latency_ms, cost_usd}. Raises LLMError on any failure."""
     kwargs = {"model": model, "messages": messages,
               "max_tokens": max(max_tokens, config.LLM_MIN_MAX_TOKENS)}
-    if temperature is not None:
+    if temperature is not None and not config.LLM_OMIT_TEMPERATURE:
         kwargs["temperature"] = temperature
     if config.LLM_EXTRA_BODY:
         kwargs["extra_body"] = config.LLM_EXTRA_BODY

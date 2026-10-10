@@ -138,3 +138,27 @@ def test_extra_body_and_min_tokens_are_sent(monkeypatch):
     monkeypatch.setattr(config, "LLM_MIN_MAX_TOKENS", 1024)
     assert llm.chat("m", [{"role": "user", "content": "hi"}], max_tokens=80)["text"] == "OK"
     assert sent["max_tokens"] == 1024 and sent["extra_body"] == {"reasoning_effort": "low"}
+
+
+def test_temperature_can_be_omitted(monkeypatch):
+    from pipeline import config, llm
+    sent = {}
+
+    class Resp:
+        choices = [type("C", (), {"message": type("M", (), {"content": "OK"})()})()]
+        usage = None
+
+    class Client:
+        class chat:
+            class completions:
+                @staticmethod
+                def create(**kw):
+                    sent.clear(); sent.update(kw)
+                    return Resp()
+
+    monkeypatch.setattr(llm, "_get_client", lambda: Client)
+    llm.chat("m", [{"role": "user", "content": "hi"}], temperature=0.0)
+    assert sent["temperature"] == 0.0
+    monkeypatch.setattr(config, "LLM_OMIT_TEMPERATURE", True)
+    llm.chat("m", [{"role": "user", "content": "hi"}], temperature=0.0)
+    assert "temperature" not in sent

@@ -26,6 +26,9 @@ try:
 except json.JSONDecodeError:
     LLM_EXTRA_BODY = {}
 LLM_MIN_MAX_TOKENS = int(os.environ.get("LLM_MIN_MAX_TOKENS", "0") or 0)
+#   LLM_OMIT_TEMPERATURE=1   never send a temperature (recent Claude models on Anthropic's
+#                            OpenAI-compatible endpoint reject any value below 1)
+LLM_OMIT_TEMPERATURE = os.environ.get("LLM_OMIT_TEMPERATURE", "0") not in ("0", "false", "False", "")
 
 if USE_HF:
     DEFAULT_TEXT_MODEL = os.environ.get("TEXT_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
