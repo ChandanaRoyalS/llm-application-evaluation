@@ -91,7 +91,9 @@ with gr.Blocks(title="Skincare Assistant") as demo:
                     "The assistant describes visible cosmetic characteristics — "
                     "it never diagnoses medical conditions.\n\n"
                     "*Privacy: your photo is sent to a third-party AI model provider "
-                    "(via Hugging Face Inference Providers) for analysis.*")
+                    f"({_cfg.LLM_PROVIDER if _cfg.USE_HF else 'Databricks model serving'}, "
+                    f"model {_cfg.DEFAULT_VISION_MODEL}) for analysis. The photo path is not "
+                    "covered by the evaluation (no licensed, labeled photo set).*")
         img_in = gr.Image(type="filepath", label="Your photo")
         img_btn = gr.Button("Analyze")
         img_out = gr.Markdown()
